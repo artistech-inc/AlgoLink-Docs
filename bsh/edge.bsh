@@ -1,0 +1,63 @@
+import com.artistech.algolink.orgs.edge.EdgeConfig;
+
+import com.artistech.algolink.core.DataBuilder;
+import com.artistech.algolink.core.DataBuilderConfig;
+import com.artistech.algolink.core.Organization;
+import com.artistech.algolink.core.Population;
+import com.artistech.algolink.core.PopulationConfig;
+import com.artistech.algolink.serializers.IAlgoLinkSerializer;
+import com.artistech.algolink.serializers.JsonSerializer;
+import com.artistech.algolink.writers.IAlgoLinkWriter;
+import com.artistech.algolink.writers.IWriterFactory;
+import com.artistech.algolink.writers.JsonCommsWriter;
+import com.artistech.algolink.writers.WriterFactory;
+
+//not strictly necessary, but if running multiple
+//simulations in serial in the same script, this would be necessary
+com.artistech.utils.Random.reset(true);
+
+PopulationConfig pc = new PopulationConfig();
+DataBuilderConfig dbc = new DataBuilderConfig();
+
+//set parameter values:
+//nc.setStressTest(false);
+//nc.setCommsPerMinute(10);
+pc.setSize(0);
+dbc.setDuration(1440);
+dbc.setRealTimeFactor(0);
+dbc.setName("edge-bsh");
+dbc.setTicking(false);
+
+//create population:
+Population pop = pc.createPopulation(dbc.getStartTime());
+
+//initialize orgs:
+for(int ii = 0; ii < 20; ii++) {
+    EdgeConfig ec = new EdgeConfig();
+    ec.setProjectSize(10 + ii);
+    Organization org = ec.createOrganization(dbc.getStartTime());
+    pop.addOrganization(org, dbc.getStartTime());
+}
+
+//create databuilder:
+DataBuilder db = dbc.createDataBuilder(pop);
+
+//initialize serializers/writers:
+IWriterFactory factory = WriterFactory.defaultFactory();
+IAlgoLinkWriter w = factory.createInstance(JsonCommsWriter.class);
+w.initialize(db);
+db.initialize();
+
+//IAlgoLinkSerializer serializer = new JsonSerializer();
+//serializer.serialize(db, pop);
+
+//run and wait:
+if (!dbc.isTicking()) {
+    db.builderThread().start();
+    db.waitForTermination();
+} else {
+    boolean success;
+    do {
+        success = db.doTick();
+    } while(success);
+}

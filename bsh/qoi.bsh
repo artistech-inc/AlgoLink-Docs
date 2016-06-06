@@ -1,0 +1,44 @@
+import com.artistech.algolink.AlgoLinkInfo;
+import com.artistech.algolink.core.DataBuilder;
+import com.artistech.algolink.core.DataBuilderConfig;
+import com.artistech.algolink.core.Organization;
+import com.artistech.algolink.core.Population;
+import com.artistech.algolink.core.PopulationConfig;
+import com.artistech.algolink.exceptions.AlgoLinkException;
+import com.artistech.algolink.orgs.qoi.QoIConfig;
+import com.artistech.algolink.web.Data;
+import com.artistech.algolink.web.DataBuilderManager;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.servlet.MultipartConfigElement;
+import javax.servlet.ServletContextListener;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.webapp.WebAppContext;
+import org.reflections.Reflections;
+
+//not strictly necessary, but if running multiple
+//simulations in serial in the same script, this would be necessary
+com.artistech.utils.Random.reset(true);
+
+QoIConfig qc = new QoIConfig();
+DataBuilderConfig dbc = new DataBuilderConfig();
+Organization org = qc.createOrganization(dbc.getStartTime());
+PopulationConfig pc = new PopulationConfig();
+
+dbc.setDuration(10);
+dbc.setRealTimeFactor(100);
+pc.setSize(50);
+
+Population pop = pc.createPopulation(dbc.getStartTime());
+pop.addOrganization(org, dbc.getStartTime());
+
+DataBuilder db = dbc.createDataBuilder(pop);
+Data data = new Data(db.getDbID(), db, pop);
+DataBuilderManager.setData(db.getDbID(), data);
+
+db.builderThread().start();
+db.waitForTermination();

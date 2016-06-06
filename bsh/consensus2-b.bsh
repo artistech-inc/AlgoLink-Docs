@@ -1,0 +1,180 @@
+import com.artistech.algolink.orgs.consensus2.Consensus2Config;
+
+import com.artistech.algolink.orgs.consensus2.Consensus2OpinionConfig;
+import com.artistech.algolink.orgs.consensus2.Consensus2OpinionSubVariableConfig;
+
+import com.artistech.algolink.AlgoLinkInfo;
+import com.artistech.algolink.core.DataBuilder;
+import com.artistech.algolink.core.DataBuilderConfig;
+import com.artistech.algolink.core.Organization;
+import com.artistech.algolink.core.Population;
+import com.artistech.algolink.core.PopulationConfig;
+import com.artistech.algolink.serializers.IAlgoLinkSerializer;
+import com.artistech.algolink.serializers.JsonSerializer;
+import com.artistech.utils.logging.Logging;
+import com.artistech.algolink.writers.IAlgoLinkWriter;
+import com.artistech.algolink.writers.IWriterFactory;
+import com.artistech.algolink.writers.JsonCommsWriter;
+import com.artistech.algolink.writers.WriterFactory;
+
+//not strictly necessary, but if running multiple
+//simulations in serial in the same script, this would be necessary
+
+import java.util.logging.Logger;
+import java.util.logging.Level;
+
+//initialize the logging
+Logging.initLogging(new AlgoLinkInfo());
+
+//create a logger
+Logger logger = Logger.getLogger("com.artistech.algolink.bsh.consensus2");
+
+if (randomSeed == void) {
+    randomSeed = 51;
+} else {
+    randomSeed = Integer.parseInt(randomSeed);
+}
+
+if (duration == void) {
+    duration = 2000000;
+} else {
+    duration = Integer.parseInt(duration);
+}
+
+if (size == void) {
+    size = 200;
+} else {
+    size = Integer.parseInt(size);
+}
+
+if (numberOfGroups == void) {
+    numberOfGroups = 2;
+} else {
+    numberOfGroups = Integer.parseInt(numberOfGroups);
+}
+
+if (sizeOfGroups == void) {
+    sizeOfGroups = 2;
+} else {
+    sizeOfGroups = Integer.parseInt(sizeOfGroups);
+}
+
+if (similarityThreshold == void) {
+    similarityThreshold = 3;
+} else {
+    similarityThreshold = Integer.parseInt(similarityThreshold);
+}
+
+if (numberOfTopics == void) {
+    numberOfTopics = 5;
+} else {
+    numberOfTopics = Integer.parseInt(numberOfTopics);
+}
+
+if (numberOfOpinionValues == void) {
+    numberOfOpinionValues = 2;
+} else {
+    numberOfOpinionValues = Integer.parseInt(numberOfOpinionValues);
+}
+
+if (noChangeThreshold == void) {
+    noChangeThreshold = 2000;
+} else {
+    noChangeThreshold = Integer.parseInt(noChangeThreshold);
+}
+int[] kValues = new int[]{ 2, 4, 7 };
+int[] sValues = new int[]{ 2, 3 };
+//int[] qValues = new int[]{ 2, 3, 4, 5, 6, 7, 8};
+
+for(int r = 0; r < 15; r++) {
+    randomSeed = 3751 + r;
+    for(int kIndex = 0; kIndex < kValues.length; kIndex++) {
+        int k = kValues[kIndex];
+        for(int sIndex = 0; sIndex < sValues.length - 1; sIndex++) {
+            int s = sValues[sIndex];
+            for(int q = 8; q >= 2; q--) {
+                //change seed value
+                //default is 51
+
+            	phi = 3;
+//                for(int phi = 5; phi >= 0; phi--) {
+                    numberOfGroups = k;
+                    sizeOfGroups = s;
+                    numberOfOpinionValues = q;
+
+                    //initialize configs:
+                    Consensus2Config nc = new Consensus2Config();
+                    //number of turns to detect no changes being made
+                    nc.setNoChangeThreshold(noChangeThreshold);
+                    //size of the organization
+                    nc.setN(size);
+                    //this is the average number of groups that an entity belongs to
+                    nc.setK(numberOfGroups);
+                    //this is the size of a group
+                    nc.setS(sizeOfGroups);
+                    //similarity threshold for rewire
+                    nc.setPhi(phi);
+                    //number of topics
+                    nc.setF(numberOfTopics);
+                    //number of values for a topic
+                    nc.setQ(numberOfOpinionValues);
+
+                    String fName = "/home/matta/.ArtisTech/AlgoLink/communications/consensus2-bsh." + randomSeed + "-randomSeed." + nc.getN() + "-size." + nc.getF() + "-opinions." + nc.getQ() + "-values." + nc.getPhi() + "-similarity." + nc.getK() + "-num_groups." + nc.getS() + "-grp_size.puid-1.consensus2.txt";
+                    java.io.File f = new java.io.File(fName);
+                    if (!f.createNewFile()) {
+                        System.out.println("Found Duplicate... run: " + fName);
+                    } else {
+                        com.artistech.utils.Random.setSeed(randomSeed);
+                        logger.log(Level.INFO, "Random Seed:                      {0}", new Object[]{ com.artistech.utils.Random.getSeed() });
+                        logger.log(Level.INFO, "Duration:                         {0}", new Object[]{ duration });
+                        logger.log(Level.INFO, "Organization Size:                {0}", new Object[]{ nc.getN() });
+                        logger.log(Level.INFO, "Number of Groups:                 {0}", new Object[]{ nc.getK() });
+                        logger.log(Level.INFO, "Size of Groups:                   {0}", new Object[]{ nc.getS() });
+                        logger.log(Level.INFO, "Similarity Threshold:             {0}", new Object[]{ nc.getPhi() });
+                        logger.log(Level.INFO, "Number of Topics:                 {0}", new Object[]{ nc.getF() });
+                        logger.log(Level.INFO, "Number of Opinion Values:         {0}", new Object[]{ nc.getQ() });
+                        logger.log(Level.INFO, "No Change Threshold:              {0}", new Object[]{ noChangeThreshold });
+
+                        com.artistech.utils.Random.reset(true);
+                        com.artistech.utils.Random.setSeed(randomSeed);
+
+                        PopulationConfig pc = new PopulationConfig();
+                        DataBuilderConfig dbc = new DataBuilderConfig();
+
+                        //set parameter values:
+                        dbc.setDuration(duration);
+                        dbc.setRealTimeFactor(0);
+                        dbc.setName("consensus2-bsh." + randomSeed + "-randomSeed." + nc.getN() + "-size." + nc.getF() + "-opinions." + nc.getQ() + "-values." + nc.getPhi() + "-similarity." + nc.getK() + "-num_groups." + nc.getS() + "-grp_size");
+                        dbc.setTicking(false);
+                        pc.setSize(nc.getN());
+
+                        //initialize orgs:
+                        Organization org = nc.createOrganization(dbc.getStartTime());
+
+                        //create population:
+                        Population pop = pc.createPopulation(dbc.getStartTime());
+                        pop.addOrganization(org, dbc.getStartTime());
+
+                        //create databuilder:
+                        DataBuilder db = dbc.createDataBuilder(pop);
+                        db.initialize();
+
+                        //IAlgoLinkSerializer serializer = new JsonSerializer();
+                        //serializer.serialize(db, pop);
+
+                        //run and wait:
+                        if (!dbc.isTicking()) {
+                            db.builderThread().start();
+                            db.waitForTermination();
+                        } else {
+                            boolean success;
+                            do {
+                                success = db.doTick();
+                            } while(success);
+                        }
+//                    }
+                }
+            }
+        }
+    }
+}

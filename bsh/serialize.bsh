@@ -1,0 +1,146 @@
+import com.artistech.algolink.orgs.noise.NoiseConfig;
+import com.artistech.algolink.orgs.noise.NoiseOrganization;
+
+import com.artistech.algolink.AlgoLinkInfo;
+import com.artistech.algolink.core.ConfigBase;
+import com.artistech.algolink.core.Organization;
+import com.artistech.algolink.core.Population;
+import com.artistech.algolink.annotations.OrgMeta;
+import com.artistech.algolink.core.Communication;
+import com.artistech.algolink.core.DataBuilder;
+import com.artistech.algolink.core.DataBuilderConfig;
+import com.artistech.algolink.core.Entity;
+import com.artistech.algolink.core.Group;
+import com.artistech.algolink.core.IPopulation;
+import com.artistech.algolink.core.PopulationConfig;
+import com.artistech.algolink.events.CommunicationEventArgs;
+import com.artistech.algolink.mq.MqBroadcastFilter;
+import com.artistech.algolink.exceptions.AlgoLinkException;
+import com.artistech.algolink.exceptions.CommunicationException;
+import com.artistech.algolink.listeners.IDataBuilderListener;
+import com.artistech.algolink.listeners.IGroupListener;
+import com.artistech.algolink.listeners.IOnCommunicationListener;
+import com.artistech.algolink.listeners.IPopulationListener;
+import com.artistech.utils.Random;
+import com.artistech.utils.logging.Logging;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+//not strictly necessary, but if running multiple
+//simulations in serial in the same script, this would be necessary
+com.artistech.utils.Random.reset(true);
+//Logging.initLogging(new AlgoLinkInfo());
+
+//initialize configs:
+NoiseConfig nc = new NoiseConfig();
+PopulationConfig pc = new PopulationConfig();
+DataBuilderConfig dbc = new DataBuilderConfig();
+dbc.setCommFilter(new MqBroadcastFilter());
+
+//set parameter values:
+nc.setStressTest(false);
+nc.setCommsPerMinute(50);
+pc.setSize(5000);
+
+dbc.setDuration(60);
+dbc.setName("noise-a");
+
+//create population:
+Population pop = pc.createPopulation(dbc.getStartTime());
+
+//copy the population
+Population pop2 = null;
+ByteArrayOutputStream bos = new ByteArrayOutputStream();
+ObjectOutputStream out = new ObjectOutputStream(bos);
+out.writeObject(pop);
+//De-serialization of object
+ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
+ObjectInputStream in = new ObjectInputStream(bis);
+pop2 = (Population) in.readObject();
+out.close();
+
+//initialize orgs:
+//add the noize org to only one of the populations
+Organization org = nc.createOrganization(dbc.getStartTime());
+pop.addOrganization(org, dbc.getStartTime());
+
+//create databuilder:
+DataBuilder db = dbc.createDataBuilder(pop);
+//db.setThreadConfig(tc);
+
+//copy the data builder, and set "ticking" to true
+//the first databuilder will drive the second.
+dbc = (DataBuilderConfig) dbc.copy();
+dbc.setTicking(true);
+dbc.setName("noise-b");
+final DataBuilder db2 = dbc.createDataBuilder(pop2);
+
+//add listeners
+db.addOnCommunicationListener(new IOnCommunicationListener() {
+
+    public void onCommunication(Object sender, CommunicationEventArgs e) {
+        for (Communication c : e.getCommunications()) {
+            //send a copy of the communication to the other data-builder:
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            Communication copied;
+            ObjectOutputStream out = new ObjectOutputStream(bos);
+            out.writeObject(c);
+            //De-serialization of object
+            ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
+            ObjectInputStream in = new ObjectInputStream(bis);
+            copied = (Communication) in.readObject();
+            copied.setSent(false);
+
+            db2.injectCommunication(copied);
+        }
+    }
+
+    public void onCommunicationEnd(Object sender, CommunicationEventArgs e) {
+    }
+});
+
+db.addDbListener(new IDataBuilderListener() {
+
+    public void tick(DataBuilder db, Population pop, Calendar time) {
+        //tell the second databuilder to tick:
+        db2.doTick();
+    }
+
+    public void simulationComplete(DataBuilder db, Population pop, Calendar time) {
+        //tell the second databuilder to end:
+        db2.askForTermination();
+    }
+
+    public void simulationStart(DataBuilder db, Population pop, Calendar time) {
+        //tell the second databuilder to initialize:
+        db2.initialize();
+    }
+});
+
+db2.addOnCommunicationListener(new IOnCommunicationListener() {
+
+    public void onCommunication(Object sender, CommunicationEventArgs e) {
+        //the other data builder is now processing communications w/o any native organizations:
+        Logger.getLogger(NoiseOrganization.class.getName()).log(Level.FINER, "Communication Started: {0}", db2.getDbName());
+    }
+
+    public void onCommunicationEnd(Object sender, CommunicationEventArgs e) {
+        //the other data builder is now processing communications w/o any native organizations:
+        Logger.getLogger(NoiseOrganization.class.getName()).log(Level.FINER, "Communication Ended: {0}", db2.getDbName());
+    }
+});
+
+//run and wait:
+db.builderThread().start();
+db.waitForTermination();

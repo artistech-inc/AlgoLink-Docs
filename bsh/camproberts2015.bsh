@@ -1,0 +1,241 @@
+import com.artistech.algolink.orgs.camproberts2015.CampRoberts2015Config;
+import com.artistech.algolink.orgs.camproberts2015.CampRoberts2015Phase;
+import com.artistech.algolink.orgs.camproberts2015.config.CampRoberts2015CommunicateConfig;
+import com.artistech.algolink.orgs.camproberts2015.config.CampRoberts2015DisseminateConfig;
+import com.artistech.algolink.orgs.camproberts2015.config.CampRoberts2015ActConfig;
+import com.artistech.algolink.orgs.camproberts2015.config.CampRoberts2015ReportConfig;
+import com.artistech.algolink.orgs.camproberts2015.config.CampRoberts2015IdleConfig;
+
+import com.artistech.algolink.core.DataBuilder;
+import com.artistech.algolink.core.DataBuilderConfig;
+import com.artistech.algolink.core.Organization;
+import com.artistech.algolink.core.Population;
+import com.artistech.algolink.core.PopulationConfig;
+import com.artistech.algolink.serializers.IAlgoLinkSerializer;
+import com.artistech.algolink.serializers.JsonSerializer;
+//import com.artistech.algolink.writers.CsvWriter;
+import com.artistech.algolink.writers.GexfWriter1;
+import com.artistech.algolink.writers.GexfWriter2;
+import com.artistech.algolink.writers.GexfWriter3;
+import com.artistech.algolink.writers.IAlgoLinkWriter;
+import com.artistech.algolink.writers.IWriterFactory;
+import com.artistech.algolink.writers.JsonCommsWriter;
+import com.artistech.algolink.writers.MgenWriter;
+import com.artistech.algolink.writers.WriterFactory;
+import java.util.ArrayList;
+
+import com.artistech.algolink.AlgoLinkInfo;
+import com.artistech.utils.logging.Logging;
+import com.artistech.geo.bounding.BoundingBox;
+import com.artistech.geo.bounding.CompositeBoundingArea;
+import com.artistech.geo.bounding.BoundingArea;
+import java.util.logging.Logger;
+import java.util.logging.Level;
+
+//initialize the logging
+Logging.initLogging(AlgoLinkInfo.Instance);
+Logger logger = Logger.getLogger("com.artistech.algolink.bsh.camproberts2015");
+
+//not strictly necessary, but if running multiple
+//simulations in serial in the same script, this would be necessary
+com.artistech.utils.Random.reset(true);
+
+//initialize configs:
+CampRoberts2015Config sc = new CampRoberts2015Config();
+DataBuilderConfig dbc = new DataBuilderConfig();
+PopulationConfig pc = new PopulationConfig();
+CompositeBoundingArea cba = new CompositeBoundingArea();
+
+com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+
+String b1 = "{\"min\":{\"altitude\":null,\"latitude\":{\"degrees\":38.92228571176529},\"longitude\":{\"degrees\":-76.9923144876957}},\"max\":{\"altitude\":null,\"latitude\":{\"degrees\":38.97528571486473},\"longitude\":{\"degrees\":-76.95689046084881}}}";
+String b2 = "{\"min\":{\"altitude\":null,\"latitude\":{\"degrees\":38.912142854928966},\"longitude\":{\"degrees\":-76.983303886652}},\"max\":{\"altitude\":null,\"latitude\":{\"degrees\":38.949428570270534},\"longitude\":{\"degrees\":-76.95}}}";
+String b3 = "{\"min\":{\"altitude\":null,\"latitude\":{\"degrees\":38.93600000143051},\"longitude\":{\"degrees\":-76.94575971961022}},\"max\":{\"altitude\":null,\"latitude\":{\"degrees\":38.952285712957384},\"longitude\":{\"degrees\":-76.92826855182648}}}";
+String b4 = "{\"min\":{\"altitude\":null,\"latitude\":{\"degrees\":38.92099999785423},\"longitude\":{\"degrees\":-76.99434628970921}},\"max\":{\"altitude\":null,\"latitude\":{\"degrees\":38.95071428716183},\"longitude\":{\"degrees\":-76.94054770469666}}}";
+String b5 = "{\"min\":{\"altitude\":null,\"latitude\":{\"degrees\":38.94271428585052},\"longitude\":{\"degrees\":-76.92809187173843}},\"max\":{\"altitude\":null,\"latitude\":{\"degrees\":38.95957142710686},\"longitude\":{\"degrees\":-76.9106007039547}}}";
+
+BoundingArea ba1 = mapper.readValue(b1, BoundingBox.class);
+BoundingArea ba2 = mapper.readValue(b2, BoundingBox.class);
+BoundingArea ba3 = mapper.readValue(b3, BoundingBox.class);
+BoundingArea ba4 = mapper.readValue(b4, BoundingBox.class);
+BoundingArea ba5 = mapper.readValue(b5, BoundingBox.class);
+
+cba.addBoundingArea(ba4);
+cba.addBoundingArea(ba2);
+cba.addBoundingArea(ba1);
+cba.addBoundingArea(ba3);
+cba.addBoundingArea(ba5);
+
+sc.setVoiceKbps(512.0);
+sc.setDataTransmitKbps(1024.0);
+sc.setRepeat(true);
+
+CampRoberts2015CommunicateConfig commConfig = new CampRoberts2015CommunicateConfig();
+commConfig.setCommunicateCdrToPlPPTNum(1);
+commConfig.setCommunicateDownwardVoiceInstructionsNum(5);
+commConfig.setCommunicateDownwardVoiceInstructionsLen(20.0);
+commConfig.setCommunicateCdrToPlImgNum(6);
+commConfig.setCommunicateCdrToPlImgSize(105);
+commConfig.setCommunicateUpwardVoiceQuestionsNum(2);
+commConfig.setCommunicateUpwardVoiceQuestionsLen(15.0);
+commConfig.setCommunicateDownwardVoiceAnswersLen(5.0);
+commConfig.setCommunicatePercentImagePlToSl(50.0);
+
+CampRoberts2015DisseminateConfig dissConfig = new CampRoberts2015DisseminateConfig();
+dissConfig.setDisseminateLowFreqVoicePerHour(2.0);
+dissConfig.setDisseminateLowFreqVoicePerHourLen(30.0);
+dissConfig.setDisseminateMedFreqImagePerHour(3.0);
+dissConfig.setDisseminateMedFreqImagePerHourSize(105.0);
+dissConfig.setDisseminateMedFreqVoicePerHour(3.0);
+dissConfig.setDisseminateMedFreqVoicePerHourLen(20.0);
+dissConfig.setDisseminateHighFreqVoicePerHour(12.0);
+dissConfig.setDisseminateHighFreqVoicePerHourLen(10.0);
+dissConfig.setDisseminateHighFreqVoiceReplyProb(0.8);
+dissConfig.setDisseminateMedFreqVoiceReplyProb(0.5);
+dissConfig.setDisseminateLowFreqVoiceReplyProb(0.3);
+
+CampRoberts2015ActConfig actConfig = new CampRoberts2015ActConfig();
+actConfig.setActMedFreqPlVoicePerHourPerSl(4);
+actConfig.setActMedFreqPlVoicePerHourPerSlLen(10);
+actConfig.setActHighFreqSlVoicePerHourPerTl(6);
+actConfig.setActHighFreqSlVoicePerHourPerTlLen(7);
+actConfig.setActHighFreqVoiceChatterPerHour(6);
+actConfig.setActHighFreqVoiceChatterPerHourLen(5);
+actConfig.setActPlToCdrImgPerHour(2);
+actConfig.setActPlToCdrImgSize(105);
+actConfig.setActMedFreqPlVoicePerHourPerSlReplyProb(0.5);
+actConfig.setActHighFreqSlVoicePerHourPerTlReplyProb(0.8);
+actConfig.setActHighFreqVoiceChatterPerHourReplyProb(0.8);
+
+CampRoberts2015ReportConfig reportConfig = new CampRoberts2015ReportConfig();
+reportConfig.setReportTlText(5);
+reportConfig.setReportTlDoc(2);
+reportConfig.setReportTlMinImage(1);
+reportConfig.setReportTlMaxImage(5);
+//Each person, (above TL), sends only 1-3 images, and 1 doc upwards
+reportConfig.setReportMinUpwardImage(1);
+reportConfig.setReportMaxUpwardImage(3);
+reportConfig.setReportNumUpwardDoc(1);
+
+reportConfig.setReportDocSize(500);
+reportConfig.setReportImgSize(105);
+reportConfig.setReportTxtSize(105);
+
+CampRoberts2015IdleConfig idle1 = new CampRoberts2015IdleConfig();
+idle1.setIdleTlSlCommsPerHour(2);
+idle1.setIdleSlTlCommsPerHour(2);
+idle1.setIdleSlPlCommsPerHour(2);
+idle1.setIdlePlSlCommsPerHour(2);
+idle1.setIdlePlCdrCommsPerHour(2);
+idle1.setIdleCdrPlCommsPerHour(2);
+idle1.setIdleSquadCommsPerHour(0);
+idle1.setIdleChanceOfResponseRequested(0.80);
+
+CampRoberts2015IdleConfig idle2 = new CampRoberts2015IdleConfig();
+idle2.setIdleTlSlCommsPerHour(0);
+idle2.setIdleSlTlCommsPerHour(0);
+idle2.setIdleSlPlCommsPerHour(0);
+idle2.setIdlePlSlCommsPerHour(0);
+idle2.setIdlePlCdrCommsPerHour(0);
+idle2.setIdleCdrPlCommsPerHour(0);
+idle2.setIdleSquadCommsPerHour(10);
+//comm length in seconds
+idle2.setIdleSquadCommsLen(30);
+idle2.setIdleChanceOfResponseRequested(0.70);
+
+ArrayList cfgs = new ArrayList();
+//idle until 0700
+cfgs.add(new CampRoberts2015Phase(CampRoberts2015Phase.Phases.IDLE,         420, idle2));
+
+//run for 6 hours
+cfgs.add(new CampRoberts2015Phase(CampRoberts2015Phase.Phases.COMMUNICATE,  90, commConfig));
+cfgs.add(new CampRoberts2015Phase(CampRoberts2015Phase.Phases.DISSEMINATE,  90, dissConfig));
+cfgs.add(new CampRoberts2015Phase(CampRoberts2015Phase.Phases.ACT,          90, actConfig));
+cfgs.add(new CampRoberts2015Phase(CampRoberts2015Phase.Phases.REPORT,       90, reportConfig));
+
+//idle for 4 hours
+cfgs.add(new CampRoberts2015Phase(CampRoberts2015Phase.Phases.IDLE,         240, idle1));
+
+//run for 6 hours
+cfgs.add(new CampRoberts2015Phase(CampRoberts2015Phase.Phases.COMMUNICATE,  90, commConfig));
+cfgs.add(new CampRoberts2015Phase(CampRoberts2015Phase.Phases.DISSEMINATE,  90, dissConfig));
+cfgs.add(new CampRoberts2015Phase(CampRoberts2015Phase.Phases.ACT,          90, actConfig));
+cfgs.add(new CampRoberts2015Phase(CampRoberts2015Phase.Phases.REPORT,       90, reportConfig));
+
+//idle until 0700 the next day
+cfgs.add(new CampRoberts2015Phase(CampRoberts2015Phase.Phases.IDLE,         480, idle2));
+
+//run for 6 hours
+cfgs.add(new CampRoberts2015Phase(CampRoberts2015Phase.Phases.COMMUNICATE,  90, commConfig));
+cfgs.add(new CampRoberts2015Phase(CampRoberts2015Phase.Phases.DISSEMINATE,  90, dissConfig));
+cfgs.add(new CampRoberts2015Phase(CampRoberts2015Phase.Phases.ACT,          90, actConfig));
+cfgs.add(new CampRoberts2015Phase(CampRoberts2015Phase.Phases.REPORT,       90, reportConfig));
+
+//idle for 4 hours
+cfgs.add(new CampRoberts2015Phase(CampRoberts2015Phase.Phases.IDLE,         240, idle1));
+
+//run for 6 hours
+cfgs.add(new CampRoberts2015Phase(CampRoberts2015Phase.Phases.COMMUNICATE,  90, commConfig));
+cfgs.add(new CampRoberts2015Phase(CampRoberts2015Phase.Phases.DISSEMINATE,  90, dissConfig));
+cfgs.add(new CampRoberts2015Phase(CampRoberts2015Phase.Phases.ACT,          90, actConfig));
+cfgs.add(new CampRoberts2015Phase(CampRoberts2015Phase.Phases.REPORT,       90, reportConfig));
+
+//idle until 2400
+cfgs.add(new CampRoberts2015Phase(CampRoberts2015Phase.Phases.IDLE,         60, idle2));
+sc.setPhases(cfgs);
+
+int duration = 0;
+for (int ii = 0; ii < sc.getPhases().size(); ii++) {
+    duration += sc.getPhases().get(ii).getDuration();
+}
+
+//initialize orgs:
+Organization o = sc.createOrganization(dbc.getStartTime());
+//set parameter values:
+pc.setSize(o.getMaxSize());
+
+dbc.setDuration(duration);
+dbc.setRealTimeFactor(0);
+dbc.setName("CampRoberts2015-a");
+
+//create population:
+Population pop = pc.createPopulation(dbc.getStartTime());
+pop.setBoundingArea(cba);
+pop.addOrganization(o, dbc.getStartTime());
+
+//create data builder:
+DataBuilder db = dbc.createDataBuilder(pop);
+
+//initialize serializers/writers:
+IWriterFactory factory = WriterFactory.defaultFactory();
+IAlgoLinkWriter w;// = factory.createInstance(MgenWriter.class);
+//w.setProperty("timeScaleFactor", 60.0);
+//w.initialize(db);
+// w = factory.createInstance(JsonCommsWriter.class);
+// w.initialize(db);
+//w = factory.createInstance(GexfWriter1.class);
+//w.initialize(db);
+//w = factory.createInstance(GexfWriter2.class);
+//w.initialize(db);
+//w = factory.createInstance(GexfWriter3.class);
+//w.initialize(db);
+//w = factory.createInstance(CsvWriter.class);
+//w.initialize(db);
+
+try {
+    Class viz = Class.forName("com.artistech.algolink.gui.visualizations.MapVisualization");
+    w = viz.newInstance();
+    w.initialize(db);
+    logger.log(Level.INFO, "VIZ FOUND!");
+} catch (Exception ex) {
+    logger.log(Level.INFO, "VIZ NOT FOUND!");
+}
+
+db.initialize();
+
+IAlgoLinkSerializer serializer = new JsonSerializer();
+serializer.serialize(db, pop);
+
+//run and wait:
+db.builderThread().start();
+db.waitForTermination();

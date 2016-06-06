@@ -1,0 +1,67 @@
+import com.artistech.algolink.orgs.randomgroups.RandomGroupsConfig;
+
+import com.artistech.algolink.core.DataBuilder;
+import com.artistech.algolink.core.DataBuilderConfig;
+import com.artistech.algolink.core.Organization;
+import com.artistech.algolink.core.Population;
+import com.artistech.algolink.core.PopulationConfig;
+import com.artistech.algolink.serializers.IAlgoLinkSerializer;
+import com.artistech.algolink.serializers.JsonSerializer;
+import com.artistech.algolink.writers.IAlgoLinkWriter;
+import com.artistech.algolink.writers.IWriterFactory;
+import com.artistech.algolink.writers.JsonCommsWriter;
+import com.artistech.algolink.writers.WriterFactory;
+
+//not strictly necessary, but if running multiple
+//simulations in serial in the same script, this would be necessary
+com.artistech.utils.Random.reset(true);
+
+if (broadcastForumMessages == void) {
+    broadcastForumMessages = true;
+} else {
+    broadcastForumMessages = Boolean.parseBoolean(broadcastForumMessages);
+}
+//commsPerMinute = 10.0
+//percentProject = 0.66
+//minProjectDuration = 60
+//maxProjectDuration = 240
+//min_workersPerProject = 3
+//max_workersPerProject = 6
+//minProjectsDay = 2
+//maxProjectsDay = 6
+//organizationMovement = true
+
+
+//initialize configs:
+RandomGroupsConfig sc = new RandomGroupsConfig();
+DataBuilderConfig dbc = new DataBuilderConfig();
+PopulationConfig pc = new PopulationConfig();
+sc.setBroadcastForumMessages(broadcastForumMessages);
+pc.setSize(1000);
+
+dbc.setDuration(1440);
+dbc.setRealTimeFactor(0);
+dbc.setName("random-groups");
+
+//initialize orgs:
+Organization o = sc.createOrganization(dbc.getStartTime());
+
+//create population:
+Population pop = pc.createPopulation(dbc.getStartTime());
+
+pop.addOrganization(o, dbc.getStartTime());
+
+//create data builder:
+DataBuilder db = dbc.createDataBuilder(pop);
+
+//initialize serializers/writers:
+IWriterFactory factory = WriterFactory.defaultFactory();
+IAlgoLinkWriter w = factory.createInstance(JsonCommsWriter.class);
+w.initialize(db);
+db.initialize();
+
+IAlgoLinkSerializer serializer = new JsonSerializer();
+serializer.serialize(db, pop);
+
+db.builderThread().start();
+db.waitForTermination();

@@ -1,0 +1,53 @@
+import com.artistech.algolink.orgs.syncoin.SyncoinConfig;
+
+import com.artistech.algolink.core.DataBuilder;
+import com.artistech.algolink.core.DataBuilderConfig;
+import com.artistech.algolink.core.Organization;
+import com.artistech.algolink.core.Population;
+import com.artistech.algolink.core.PopulationConfig;
+import com.artistech.algolink.serializers.IAlgoLinkSerializer;
+import com.artistech.algolink.serializers.JsonSerializer;
+import com.artistech.algolink.writers.IAlgoLinkWriter;
+import com.artistech.algolink.writers.IWriterFactory;
+import com.artistech.algolink.writers.XmlCommsWriter;
+import com.artistech.algolink.writers.WriterFactory;
+
+if (syncoinFile == void) {
+    syncoinFile = "/home/matta/Documents/FOUO/SYNCOIN/syncoin.json";
+}
+if (defaultSendTime == void) {
+    defaultSendTime = "1200";
+}
+
+//not strictly necessary, but if running multiple
+//simulations in serial in the same script, this would be necessary
+com.artistech.utils.Random.reset(true);
+
+DataBuilderConfig dbc = new DataBuilderConfig();
+dbc.setDuration(40320 * 6);
+dbc.setRealTimeFactor(0);
+dbc.setName("syncoin");
+
+PopulationConfig pc = new PopulationConfig();
+pc.setSize(100);
+
+SyncoinConfig config = new SyncoinConfig();
+config.setSyncoinJsonFile(new java.io.File(syncoinFile));
+config.setDefaultSendTime(defaultSendTime);
+Organization o = config.createOrganization(dbc.getStartTime());
+
+Population pop = pc.createPopulation(dbc.getStartTime());
+pop.addOrganization(o, dbc.getStartTime());
+
+DataBuilder db = dbc.createDataBuilder(pop);
+
+//run and wait:
+if (!dbc.isTicking()) {
+    db.builderThread().start();
+    db.waitForTermination();
+} else {
+    boolean success;
+    do {
+        success = db.doTick();
+    } while(success);
+}
