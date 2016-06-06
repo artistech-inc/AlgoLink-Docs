@@ -2,6 +2,7 @@
 
  * [Corporate Website](http://artistech.com/)
  * [AlgoLink Website](http://artistech.com/algolink.html)
+![](images/AlgoLink-desktop.png)
 
 ## Controlled Message DB Generation for Intel Application. Testing.
 
