@@ -1,0 +1,16 @@
+import com.artistech.algolink.mq.DistributedNode;
+import com.artistech.algolink.AlgoLinkInfo;
+
+import com.artistech.utils.logging.Logging;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+Logging.initLogging(new AlgoLinkInfo());
+Logger logger = Logger.getLogger(DistributedNode.class.getName());
+DistributedNode ds = new DistributedNode("BshNode1");
+//ds.setCommunicationFilter(new com.artistech.algolink.web.commfilters.WebCommFilter());
+
+logger.log(Level.FINE, "Starting Distributed {0}", new Object[]{ds.getName()});
+Thread t = new Thread(ds);
+t.start();
+t.join();

@@ -1,0 +1,51 @@
+import com.artistech.algolink.mq.DistributedMaster;
+import com.artistech.algolink.AlgoLinkInfo;
+
+import com.artistech.algolink.ent.DataBuilderConfig;
+import com.artistech.algolink.core.PopulationConfig;
+import com.artistech.utils.logging.Logging;
+import java.util.Calendar;
+import java.util.logging.Logger;
+import java.util.logging.Level;
+
+Logging.initLogging(new AlgoLinkInfo());
+
+DataBuilderConfig dbc = new DataBuilderConfig();
+PopulationConfig pc = new PopulationConfig();
+
+//pc.setSize(0);
+dbc.setDuration(60);
+pc.setSize(200000);
+//dbc.setDuration(1440);
+//dbc.setCommFilter(new com.artistech.algolink.web.commfilters.WebCommFilter());
+
+Logger logger = Logger.getLogger("com.artistech.algolink.bsh.noise-ent");
+for(int ii = 4; ii <= 4; ii++) {
+    Calendar start = Calendar.getInstance();
+    logger.log(Level.INFO, "Start Time for {1} Factor: {0}", new Object[]{com.artistech.utils.TypeHandler.dateToString(start), ii});
+
+    int size = (2000 * ii) / 2.0;
+    String config = "{\"noise1\": \"com.artistech.algolink.orgs.noise.NoiseConfig\", \"noise2\": \"com.artistech.algolink.orgs.noise.NoiseConfig\"};//, \"noise3\": \"com.artistech.algolink.orgs.noise.NoiseConfig\", \"noise4\": \"com.artistech.algolink.orgs.noise.NoiseConfig\", \"noise5\": \"com.artistech.algolink.orgs.noise.NoiseConfig\", \"noise6\": \"com.artistech.algolink.orgs.noise.NoiseConfig\"}";
+    String noise1 = "{\"commsPerMinute\" : " + Integer.toString(size) + " }";
+    logger.log(Level.INFO, config);
+    logger.log(Level.INFO, noise1);
+    
+    DistributedMaster dm = new DistributedMaster(dbc, pc);
+    dm.setOrganizations(config);
+    dm.setNameValuePair("noise1", noise1);
+    dm.setNameValuePair("noise2", noise1);
+//    dm.setNameValuePair("noise3", noise1);
+//    dm.setNameValuePair("noise4", noise1);
+//    dm.setNameValuePair("noise5", noise1);
+//    dm.setNameValuePair("noise6", noise1);
+    dm.addWriter(com.artistech.algolink.writers.JsonCommsWriter.class);
+    
+    Thread t = new Thread(dm);
+    t.start();
+    t.join();
+
+    java.util.Calendar end = java.util.Calendar.getInstance();
+    logger.log(Level.INFO, "End Time for {1} Factor: {0}", new Object[]{com.artistech.utils.TypeHandler.dateToString(end), ii});
+    long time = end.getTimeInMillis() - start.getTimeInMillis();
+    logger.log(Level.INFO, "Time Consumed: {0} ms", new Object[]{time});
+}

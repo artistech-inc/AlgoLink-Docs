@@ -1,0 +1,88 @@
+import com.artistech.algolink.zeromq.DistributedMaster;
+import com.artistech.algolink.AlgoLinkInfo;
+
+import com.artistech.algolink.ent.DataBuilderConfig;
+import com.artistech.algolink.core.PopulationConfig;
+import com.artistech.utils.logging.Logging;
+import java.util.Calendar;
+import java.util.logging.Logger;
+import java.util.logging.Level;
+
+Logging.initLogging(new AlgoLinkInfo());
+Logger logger = Logger.getLogger("com.artistech.algolink.bsh.zeromq-noise-ent-var");
+
+if (duration == void) {
+    duration = 60;
+} else {
+    duration = Integer.parseInt(duration);
+}
+logger.log(Level.INFO, "duration set to {0}", new Object[]{duration});
+
+if (population_size == void) {
+    population_size = 200000;
+} else {
+    population_size = Integer.parseInt(population_size);
+}
+logger.log(Level.INFO, "population_size set to {0}", new Object[]{population_size});
+
+if (do_broadcast == void) {
+    do_broadcast = false;
+} else {
+    do_broadcast = Boolean.parseBoolean(do_broadcast);
+}
+logger.log(Level.INFO, "do_broadcast set to {0}", new Object[]{do_broadcast});
+
+//expects variables for num_satellites and comms_per_tick to be passed in:
+if (num_satellites == void) {
+    num_satellites = 3;
+} else {
+    num_satellites = Integer.parseInt(num_satellites);
+}
+logger.log(Level.INFO, "num_satellites set to {0}", new Object[]{num_satellites});
+if (comms_per_tick == void) {
+    comms_per_tick = 2000;
+} else {
+    comms_per_tick = Integer.parseInt(comms_per_tick);
+}
+logger.log(Level.INFO, "comms_per_tick set to {0}", new Object[]{comms_per_tick});
+
+DataBuilderConfig dbc = new DataBuilderConfig();
+PopulationConfig pc = new PopulationConfig();
+
+dbc.setName("noise-" + num_satellites + "-" + comms_per_tick + "-" + Boolean.toString(do_broadcast));
+dbc.setBroadcastCommunications(do_broadcast);
+dbc.setDuration(duration);
+pc.setSize(population_size);
+
+Calendar start = Calendar.getInstance();
+logger.log(Level.INFO, "Start Time for {1} Comms and {2} Satellites: {0}", new Object[]{com.artistech.utils.TypeHandler.dateToString(start), comms_per_tick, num_satellites});
+
+int size = (comms_per_tick) / (num_satellites);
+StringBuilder sb = new StringBuilder();
+DistributedMaster dm = new DistributedMaster(dbc, pc);
+
+sb.append("{");
+for (int kk = 0; kk < num_satellites; kk++) {
+    sb.append("\"noise" + Integer.toString(kk) + "\" : \"com.artistech.algolink.orgs.noise.NoiseConfig\"");
+    if (kk < num_satellites - 1) {
+        sb.append(",");
+    }
+    String noise1 = "{\"commsPerMinute\" : " + Integer.toString(size) + " }";
+    dm.setNameValuePair("noise" + Integer.toString(kk), noise1);
+    logger.log(Level.INFO, noise1);
+}
+sb.append("}");
+String config = sb.toString();
+logger.log(Level.INFO, config);
+
+dm.setOrganizations(config);
+dm.addWriter(com.artistech.algolink.writers.JsonCommsWriter.class);
+
+Thread t = new Thread(dm);
+t.start();
+t.join();
+
+java.util.Calendar end = java.util.Calendar.getInstance();
+logger.log(Level.INFO, "End Time for {1} Comms and {2} Satellites: {0}", new Object[]{com.artistech.utils.TypeHandler.dateToString(end), comms_per_tick, num_satellites});
+long time = end.getTimeInMillis() - start.getTimeInMillis();
+logger.log(Level.INFO, "Time Consumed: {0} ms", new Object[]{time});

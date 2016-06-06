@@ -1,0 +1,27 @@
+import com.artistech.algolink.zeromq.DistributedNode;
+import com.artistech.algolink.AlgoLinkInfo;
+
+import com.artistech.utils.logging.Logging;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+Logging.initLogging(new AlgoLinkInfo());
+Logger logger = Logger.getLogger(DistributedNode.class.getName());
+
+if (subPort == void) {
+    subPort = "192.168.1.13:5566";
+}
+logger.log(Level.INFO, "subPort set to {0}", new Object[]{subPort});
+
+if (pushPort == void) {
+    pushPort = "192.168.1.13:5567";
+}
+logger.log(Level.INFO, "pushPort set to {0}", new Object[]{pushPort});
+
+DistributedNode ds = new DistributedNode("BshNode1", subPort, pushPort);
+//ds.setCommunicationFilter(new com.artistech.algolink.web.commfilters.WebCommFilter());
+
+logger.log(Level.FINE, "Starting Distributed {0}", new Object[]{ds.getName()});
+Thread t = new Thread(ds);
+t.start();
+t.join();

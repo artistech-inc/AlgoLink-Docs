@@ -2,9 +2,9 @@
 //SCRIPT FOR RUNNING THE EMANE (SANS SHIM) SIMULATION
 //This will generate a 100% success unless the percentDrop value is changed
 //--------------------------------------------------------------------
-import com.artistech.algolink.orgs.emane.EmaneConfig;
-import com.artistech.algolink.orgs.emane.EmaneOrganization;
-import com.artistech.algolink.orgs.emane.EmaneCondition;
+import com.artistech.algolink.nscta.emane.EmaneConfig;
+import com.artistech.algolink.nscta.emane.EmaneOrganization;
+import com.artistech.algolink.nscta.emane.EmaneCondition;
 
 import com.artistech.algolink.core.DataBuilder;
 import com.artistech.algolink.core.DataBuilderConfig;
@@ -36,7 +36,7 @@ Calendar start = Calendar.getInstance();
 //--------------------------------------------------------------------
 //init the variables that can be passed in as a command line argument:
 //dropPercent = percent comms to drop at random (default 0.0)
-//condition = the condition to run (default Condition3)
+//condition = the condition to run (default Condition4)
 //duration = the duration of the simulation (default 120)
 //realTimeFactor = the speed factor used to slow the simulation down (default 0)
 //randomSeed = the seed for the random number generator (default = 51)
@@ -46,7 +46,7 @@ Calendar start = Calendar.getInstance();
 //--------------------------------------------------------------------
 
 if (dropPercent == void) {
-    dropPercent = 0.50;
+    dropPercent = 0.95;
 } else {
     dropPercent = Double.parseDouble(dropPercent);
 }
@@ -58,7 +58,7 @@ if (randomSeed == void) {
 }
 
 if (condition == void) {
-    condition = com.artistech.algolink.orgs.emane.EmaneConditionEnum.Condition3;
+    condition = com.artistech.algolink.nscta.emane.EmaneConditionEnum.Condition4;
 } else {
     condition = EmaneConditionEnum.valueOf(condition);
 }
@@ -75,11 +75,39 @@ if (realTimeFactor == void) {
     realTimeFactor = EmaneConditionEnum.valueOf(realTimeFactor);
 }
 
+if (repeatAttempts == void) {
+    repeatAttempts = 5;
+} else {
+    repeatAttempts = Integer.parseInt(repeatAttempts);
+}
+
+if (condition3QueryReplyChance == void) {
+    condition3QueryReplyChance = 0.5;
+} else {
+    condition3QueryReplyChance = Double.parseDouble(condition3QueryReplyChance);
+}
+
+if (querySize == void) {
+    querySize = 10000;
+} else {
+    querySize = Integer.parseInt(querySize);
+}
+
+if (responseSize == void) {
+    responseSize = 3000;
+} else {
+    responseSize = Integer.parseInt(responseSize);
+}
+
 logger.log(Level.INFO, "Setting Real Time Factor: {0}", new Object[]{realTimeFactor});
 logger.log(Level.INFO, "Setting Duration: {0}", new Object[]{duration});
 logger.log(Level.INFO, "Setting Drop Percent: {0}", new Object[]{dropPercent});
 logger.log(Level.INFO, "Setting Condition: {0}", new Object[]{condition});
 logger.log(Level.INFO, "Setting Random Seed: {0}", new Object[]{randomSeed});
+logger.log(Level.INFO, "Setting Repeat Attempts: {0}", new Object[]{repeatAttempts});
+logger.log(Level.INFO, "Setting Condition3 reply chance: {0}", new Object[]{condition3QueryReplyChance});
+logger.log(Level.INFO, "Setting Query Size: {0}", new Object[]{querySize});
+logger.log(Level.INFO, "Setting Response Size: {0}", new Object[]{responseSize});
 
 //init random
 com.artistech.utils.Random.setSeed(randomSeed);
@@ -89,6 +117,13 @@ com.artistech.utils.Random.reset(true);
 EmaneConfig ec = new EmaneConfig();
 //set the condition
 ec.setCondition(condition);
+ec.setCondition3RetryAttempts(repeatAttempts);
+ec.setCondition3ChanceOfQueryReply(condition3QueryReplyChance);
+ec.setRequestSize(querySize);
+ec.setResponseSize(responseSize);
+logger.log(Level.INFO, "Setting Condition1/2/3/4 Query Duration: {0}", new Object[]{ec.getCondition1CommDuration()});
+logger.log(Level.INFO, "Setting Condition3 Reply Duration: {0}", new Object[]{ec.getCondition3ReplyDuration()});
+
 //create the organization from the config object
 EmaneOrganization org = (EmaneOrganization) ec.createOrganization(Calendar.getInstance());
 
