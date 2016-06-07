@@ -8,7 +8,6 @@ import com.artistech.algolink.core.Communication;
 import com.artistech.algolink.core.DataBuilder;
 import com.artistech.algolink.core.Population;
 import com.artistech.algolink.events.CommunicationEventArgs;
-import com.artistech.algolink.listeners.IOnCommunicationListener;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.Calendar;
@@ -25,7 +24,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
         outputFileExtension = ".comms_log.json.gz",
         displayName = "Json Comms Writer",
         threadSafe = true)
-public class JsonCommsWriter extends IAlgoLinkWriterImpl implements IOnCommunicationListener {
+public class JsonCommsWriter extends IAlgoLinkWriterImpl {
 
     private java.io.OutputStreamWriter _writer;
     private boolean _had_previous;
