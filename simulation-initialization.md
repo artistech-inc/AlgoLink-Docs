@@ -14,4 +14,4 @@
   - builderThread().start()
   - do-while doTick()
 
-Examples of this can be located in the <bsh> directory.
+Examples of this can be located in the bsh directory.

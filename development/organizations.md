@@ -1,6 +1,6 @@
 # Organizational Models
 
- * Simple [noise](noise) example.
+- Simple <noise> example.
 
 ## Lifetime of an Organization
 
@@ -30,6 +30,7 @@ public class NoiseSimStartListener implements ISimulationStart {
 ```
 
 The same is true for simulation complete.
+
 ```java
 public class NoiseSimComplete implements ISimulationComplete {
 
