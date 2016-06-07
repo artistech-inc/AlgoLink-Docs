@@ -20,11 +20,12 @@ public class NoiseSimStartListener implements ISimulationStart {
     public void simulationStart(DataBuilder db, Population pop, Calendar time) {
         for(Organization org : pop.getOrganizations()) {
             if (NoiseOrganization.class.isAssignableFrom(org.getClass())) {
-                //do work...
+                NoiseOrganization ng = (NoiseOrganization) org;
+                //do work for each NoiseOrganization found...
             }
         }
     }
-    
+
 }
 ```
 
@@ -36,7 +37,8 @@ public class NoiseSimComplete implements ISimulationComplete {
     public void simulationComplete(DataBuilder db, Population pop, Calendar time) {
         for(Organization org : pop.getOrganizations()) {
             if (NoiseOrganization.class.isAssignableFrom(org.getClass())) {
-                //do work...
+                NoiseOrganization ng = (NoiseOrganization) org;
+                //do work for each NoiseOrganization found...
             }
         }
     }
