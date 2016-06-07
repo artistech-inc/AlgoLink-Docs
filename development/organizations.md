@@ -1,6 +1,6 @@
 # Organizational Models
 
-- Simple <noise> example.
+- Simple [noise](noise) example.
 
 ## Lifetime of an Organization
 
