@@ -1,7 +1,11 @@
 # AlgoLink Documentation and Examples
 
 - [Corporate Website](http://artistech.com/)
-- [AlgoLink Website](http://artistech.com/algolink.html) ![](images/AlgoLink-desktop.png)
+- [AlgoLink Website](http://artistech.com/algolink.html)
+
+AlgoLink is an event driven framework for modeling simulations involving actors and entities in varying social organizations and groups.<br>
+
+![](images/AlgoLink-desktop.png)
 
 ## Controlled Message DB Generation for Intel Application. Testing.
 
