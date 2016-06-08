@@ -26,7 +26,8 @@ Implementations of these classes are automatically instantiated and loaded into 
 
 ## Communication Listening
 
-[IOnCommunicationListener](listeners/IOnCommunicationListener.java) is used for listening to the DataBuilder for when a communication begins to send and ends. [ICommunicationListener](listeners/ICommunicationListener.java) is used for registering directly with Communication objects for events. It is possible to chain these by adding an IOnCommunicationListener to the DataBuilder, then in the onCommunication() event add an ICommunicationListener to the Communication object(s).
+ - [IOnCommunicationListener](listeners/IOnCommunicationListener.java) is used for listening to the DataBuilder for when a communication begins to send and ends.
+ - [ICommunicationListener](listeners/ICommunicationListener.java) is used for registering directly with Communication objects for events. It is possible to chain these by adding an IOnCommunicationListener to the DataBuilder, then in the onCommunication() event add an ICommunicationListener to the Communication object(s).
 
 ## Population Listening
 
