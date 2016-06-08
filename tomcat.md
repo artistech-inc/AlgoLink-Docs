@@ -7,9 +7,7 @@
 
 ## Installation
 
-Put the AlgoLink-Web.war file in the appropriate deployment directory for Tomcat. Typically this is /var/lib/tomcat7/webapps. Goto http://
-
-<web-server>:<port>/AlgoLink-Web/</port></web-server>
+Put the algolink-web-10.12.war file in the appropriate deployment directory for Tomcat. Typically this is /var/lib/tomcat7/webapps. Goto http://&lt;web-server&gt;:&lt;port&gt;/algolink-web-10.12/
 
 ## Description
 
