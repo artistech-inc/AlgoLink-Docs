@@ -10,6 +10,15 @@ namespace po = boost::program_options;
 using namespace std;
 using namespace artistech;
 
+json_object* get(json_object* rootObj, const char* key)
+{
+  json_object* returnObj;
+  if (json_object_object_get_ex(rootObj, key, &returnObj))
+  {
+    return returnObj;
+  }
+  return NULL;
+}
 
 // much of this code is out of date since this was the method used when
 // using the C# implementation of AlgoLink.  The C++ library (algolink.*)
@@ -153,7 +162,7 @@ int main(int argc, char** argv) {
   while (!complete) {
     /*Check Out The Current Communicaitons*/
     json_object* tick = m_algolink->tick();
-    complete = json_object_get_boolean(json_object_object_get(tick, "complete"));
+    complete = json_object_get_boolean(get(tick, "complete"));
     //json_object* time = json_object_object_get(tick, "time");
     //count++;
     if (!complete) {
@@ -172,7 +181,7 @@ int main(int argc, char** argv) {
           printf("Communication:\n%s\n\n", json_object_to_json_string(comm));
 #endif
           // m_algolink->send_entity_message(json_object_get_string(json_object_object_get(comm, "sender")), "{time, src, dest, size, lifetime, x, y, group}");
-          m_algolink->set_queued_communication_result(json_object_get_string(json_object_object_get(comm, "id")), "SUCCESS from CPP");
+          m_algolink->set_queued_communication_result(json_object_get_string(get(comm, "id")), "SUCCESS from CPP");
         }
       }
 
