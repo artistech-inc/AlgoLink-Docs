@@ -5,7 +5,11 @@
 - Python 2.7
 - python-poster module:
 
-Ubuntu install of Python Poster: $ sudo apt-get install python-poster
+Ubuntu install of Python Poster:
+
+```
+sudo apt-get install python-poster
+```
 
 ## Installation
 

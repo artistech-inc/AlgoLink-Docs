@@ -10,7 +10,9 @@ libboost-program-options-dev is only necessary for compiling main.cpp. If only c
 
 ## Compile
 
-$ make [libalgolink.a]
+```
+make [libalgolink.a]
+```
 
 ## Use
 

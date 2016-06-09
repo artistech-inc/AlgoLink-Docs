@@ -48,7 +48,6 @@
         </dependency>
     </dependencies>
     <properties>
-        <jackson.version>2.7.4</jackson.version>
         <algolink.gnupg.signPackage>false</algolink.gnupg.signPackage>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.7</maven.compiler.source>
