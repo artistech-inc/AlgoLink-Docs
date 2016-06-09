@@ -10,6 +10,9 @@ namespace po = boost::program_options;
 using namespace std;
 using namespace artistech;
 
+// this is a wrapper function around json_object_object_get_ex since
+// json_object_object_get was deprecated and generating warnings
+// under Ubuntu 16.04
 json_object* get(json_object* rootObj, const char* key)
 {
   json_object* returnObj;
