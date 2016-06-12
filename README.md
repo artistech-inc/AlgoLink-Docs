@@ -41,12 +41,13 @@ AlgoLink eliminates simple auto-generated message structures which would make it
 
 ## Documentation
 
+- [Development](development/)
 - [Distributed/Enterprise](distributed.md)
 - [Integration with third-party applications](integration.md)
 - [Configuring Logging](logging.md)
 - [User Cases](UseCases/)
-    - [Initializing a Simulation](UseCases/simulation-initialization.md)
-    - [Initializing a Simulation](UseCases/simulation-initialization.md)
+    - [Camp Roberts 2015](UseCases/camproberts2015.md)
+    - [Test Server Instance](UseCases/server-test-instance.md)
     - [Initializing a Simulation](UseCases/simulation-initialization.md)
 - [Options](options.md)
 - [Requirements](requirements.md)
