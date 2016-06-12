@@ -15,7 +15,9 @@ Extract the AlgoLink-Ent.tar.gz file Install OpenMQ somewhere that is accessible
 
 A quick test to run would be to simply invoke the main method of the jar file w/o any arguments.
 
-$ java -jar algolink-ent-10.12.jar
+```
+java -jar algolink-ent-10.12.jar
+```
 
 This will then start up a Jetty web server on port 8081 (if this fails, it will keep incrementing ports for 10 values until it finds a port that is available). A message is printed out about loading bean shell scripts. And then the application will close down the Jetty web server and exit.
 
@@ -121,11 +123,15 @@ The satellite instances will need to be started first. Once each instance is con
 
 Start the script in AlgoLink with the following command:
 
-$ java -jar AlgoLink-Ent/AlgoLink-Ent.jar -bsh node.bsh
+```
+java -jar AlgoLink-Ent/AlgoLink-Ent.jar -bsh node.bsh
+```
 
 Once all satellite instances have started, the master can be started:
 
-$ java -jar AlgoLink-Ent/AlgoLink-Ent.jar -bsh master.bsh
+```
+java -jar AlgoLink-Ent/AlgoLink-Ent.jar -bsh master.bsh
+```
 
 This will broadcast on OpenMQ for all listening satellites. After accepting that all have been found and have responded (waiting 10 seconds), the master will tell all satellites to configure themselves and then the simulation will start.
 
