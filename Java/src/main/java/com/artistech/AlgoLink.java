@@ -563,7 +563,6 @@ public class AlgoLink {
     }
 
     public static void main(String[] args) {
-        com.artistech.utils.logging.Logging.initLogging();
         test("http://localhost:8084/AlgoLink/");
     }
 
