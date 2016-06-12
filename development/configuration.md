@@ -7,7 +7,7 @@ Many classes in AlgoLink inherit from PropertiesInitializer. This class will loo
 As well as using these properties files for setting default values, values for many types can be set using the bsh scripts. In addition to this, values can be passed into the bsh scripts from the command line.
 
 ```
-java -jar target/algolink-cli-10.12.jar -bsh consensus2.bsh -v k=1.1 -v q=2
+java -jar algolink-cli-10.12.jar -bsh consensus2.bsh -v k=1.1 -v q=2
 ```
 
 The Bean Shell Script is set with the -bsh option, and all variables that need to be passed into the bsh script are set using the -v argument. This can allow shell scripts to invoke many different simulations serially with different parameter values.

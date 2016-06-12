@@ -39,11 +39,11 @@ Algolink generates entity-link-position-content-time messages from social-struct
 
 AlgoLink eliminates simple auto-generated message structures which would make it easy for most Analysis applications and approaches to find the embedded test "bad-guys".
 
-AlgoLink offers:
+## Documentation
 
-- GUI-controlled parameterization of structure
-- Burst, replay, or real-time message generation
-- Web Accessible App
-- Writes to Web-Visible DB
-- Third-party Expert DB development
-- DB "Hint" Control
+- [Distributed/Enterprise](distributed.md)
+- [Integration with third-party applications](integration.md)
+- [Configuring Logging](logging.md)
+- [Initializing a Simulation](simulation-initialization.md)
+- [Developing AlgoLink Modules](development/README.md)
+- [User Cases](UseCases/)

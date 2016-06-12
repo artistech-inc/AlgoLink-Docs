@@ -25,7 +25,7 @@ db.initialize();
 
 ## Serializers
 
-Unlike the streaming writers, serializers should be invoked as necessary either in an init/end script or within another module. Altough they are detected by the ServiceLoader, this is used for the GUI which will serialize upon initialization ofthe simulatoin.
+Unlike the streaming writers, serializers should be invoked as necessary either in an init/end script or within another module. Altough they are detected by the ServiceLoader, this is used for the GUI which will serialize upon initialization of the simulation.
 
 - Simple [JSON](writers/JsonSerializer.java) example.
 
