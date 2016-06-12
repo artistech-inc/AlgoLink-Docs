@@ -6,7 +6,7 @@ Output generated with a Writer or Serializer is placed in the ~/.ArtisTech/AlgoL
 
 Writers will stream data as the simulation is executing. Events are registered and will fire which will allow a writer to write to a file, network, database, GUI, or any other available resource.
 
-- Simple [JSON](writers/JsonCommsWriter.java) example.
+- Simple [JSON](JsonCommsWriter.java) example.
 
 This example will initialize a file with a starting bracket '[' and will close the file when complete with ']' to denote an array. The output file is a gzip compressed file.
 
@@ -27,9 +27,14 @@ db.initialize();
 
 Unlike the streaming writers, serializers should be invoked as necessary either in an init/end script or within another module. Altough they are detected by the ServiceLoader, this is used for the GUI which will serialize upon initialization of the simulation.
 
-- Simple [JSON](writers/JsonSerializer.java) example.
+- Simple [JSON](JsonSerializer.java) example.
 
 ```java
 IAlgoLinkSerializer serializer = new JsonSerializer();
 serializer.serialize(db, pop);
 ```
+
+# Files
+
+- [JsonCommsWriter.java](JsonCommsWriter.java)
+- [JsonSerializer.java](JsonSerializer.java)

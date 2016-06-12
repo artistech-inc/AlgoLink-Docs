@@ -23,3 +23,10 @@ This will generate a libalgolink.a that can be used linked against. Or the code 
 None
 
 If any problems occur using this library, please e-mail matta@artistech.com.
+
+# Files
+
+- [algolink.cpp](algolink.cpp)
+- [algolink.h](algolink.h)
+- [main.cpp](main.cpp)
+- [Makefile](Makefile)

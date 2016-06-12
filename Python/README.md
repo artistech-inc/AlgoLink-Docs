@@ -24,3 +24,8 @@ The sent_entity_message(), set_queued_communication_result(), and set_queued_com
 ## Known Issues
 
 The method signature have not been changed to support posting of any arbitrary data to the web-services.
+
+# Files
+
+- [algolink.py](algolink.py)
+- [algolink-ent.py](algolink-ent.py)
