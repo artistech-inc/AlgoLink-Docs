@@ -7,7 +7,7 @@
 - AlgoLink's command line interface can add individual jar files and directories of jar files to the CLASSPATH at runtime.
 - The GUI searches `~/.ArtisTech/AlgoLink/lib` automatically and all jar files found are added.
 
-The maven project file uses the `serviceloader-maven-plugin plugin` to automatically generate the desired resource files for the desired classes.
+The maven project file uses the `serviceloader-maven-plugin` plugin to automatically generate the desired resource files for the desired classes.
 
 ```xml
 <plugin>
