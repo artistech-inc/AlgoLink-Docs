@@ -2,12 +2,12 @@
 
 ## Discovery of Modules
 
-- ServiceLoader looking for types for organization configuration objects, writers, serializers, and application plugins.
+- `ServiceLoader` looking for types for organization configuration objects, writers, serializers, and application plugins.
 - Searches all jar files in the CLASSPATH
 - AlgoLink's command line interface can add individual jar files and directories of jar files to the CLASSPATH at runtime.
-- The GUI searches ~/.ArtisTech/AlgoLink/lib automatically and all jar files found are added.
+- The GUI searches `~/.ArtisTech/AlgoLink/lib` automatically and all jar files found are added.
 
-The maven project file uses the serviceloader-maven-plugin plugin to automatically generate the desired resource files for the desired classes.
+The maven project file uses the `serviceloader-maven-plugin plugin` to automatically generate the desired resource files for the desired classes.
 
 ```xml
 <plugin>
@@ -42,14 +42,14 @@ The maven project file uses the serviceloader-maven-plugin plugin to automatical
 
 ## Auto-Instantiation
 
-It should be noted that every Class that derives from one of the types above may be instantiated. For this reason, when using the ISimulationStart or ISimulationComplete interfaces to generate output for a specific organization, the Population should be searched for the desired Organization type and then have the work performed. An example of this is in the [Organizations](organizations.md) description.
+It should be noted that every Class that derives from one of the types above may be instantiated. For this reason, when using the `ISimulationStart` or `ISimulationComplete` interfaces to generate output for a specific organization, the Population should be searched for the desired Organization type and then have the work performed. An example of this is in the [Organizations](organizations.md) description.
 
 The AlgoLink CLI does not auto-instantiate:
 
-- com.artistech.algolink.core.OrgConfigBase
-- com.artistech.algolink.writers.IAlgoLinkWriter
-- com.artistech.algolink.serializers.IAlgoLinkSerializer
-- com.artistech.algolink.core.commfilters.ICommunicationFilter
+- `com.artistech.algolink.core.OrgConfigBase`
+- `com.artistech.algolink.writers.IAlgoLinkWriter`
+- `com.artistech.algolink.serializers.IAlgoLinkSerializer`
+- `com.artistech.algolink.core.commfilters.ICommunicationFilter`
 
 The AlgoLink GUI does auto-instantiate every type. However, the GUI is used to enable/disable individual module functionality.
 

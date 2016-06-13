@@ -12,4 +12,4 @@ Synchronous communication filters are communication filters that will do the fil
 
 These communication filters will require a secondary process to evaluate if and when the communication starts and ends.
 
-- [WebCommFilter](WebCommFilter.java) example. The WebCommFilter can be used in conjunction with tomcat or Jetty to query for communications and tell which communications should start/end.
+- [WebCommFilter](WebCommFilter.java) example. The `WebCommFilter` can be used in conjunction with tomcat or Jetty to query for communications and tell which communications should start/end.

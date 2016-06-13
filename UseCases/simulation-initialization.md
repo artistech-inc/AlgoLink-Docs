@@ -1,4 +1,4 @@
-# Initialize and Run a Simulation
+# Initialize and Run a Simulation Pseudo-code
 
 1. Create any Organization Configurations desired.
 2. Create a Population Configuration.
@@ -11,7 +11,7 @@
 9. Initialize DataBuilder.
 10. Run DataBuilder.
 
-  - builderThread().start()
-  - do-while doTick()
+  - `builderThread().start()`
+  - `do-while doTick()`
 
 Examples of this can be located in the [bsh](../bsh/) directory.

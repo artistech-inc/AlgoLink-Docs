@@ -1,6 +1,6 @@
 # Logging
 
-AlgoLink uses the native Logger classes and is configured using the ~/.ArtisTech/AlgoLink/logging.properties file
+AlgoLink uses the native `java.util.logging.Logger` classes and is configured using the `~/.ArtisTech/AlgoLink/logging.properties` file
 
 Example:
 
@@ -32,11 +32,11 @@ java.util.logging.ConsoleHandler.level = FINE
 com.artistech.utils.logging.ShortenedNameFormatter.format = %1$tFT%1$tT %4$s [%3$s] %5$s %6$s%n
 ```
 
-Anytime that AlgoLink runs and the logging.properties file is not present, it will recreate the file with the default AlgoLink logging properties file.
+Anytime that AlgoLink runs and the `logging.properties` file is not present, it will recreate the file with the default AlgoLink logging properties file.
 
 ## Overloading the file output on the command line
 
-The java.util.logging.FileHandler.formatter can be specified directly from the command line which will override any value that is specified in the logging.properties file.
+The `java.util.logging.FileHandler.formatter` can be specified directly from the command line which will override any value that is specified in the `logging.properties` file.
 
 ```
 java -Dalgolink.logfile=/tmp/algolink.log -jar algolink-10.12.jar ....
@@ -44,7 +44,7 @@ java -Dalgolink.logfile=/tmp/algolink.log -jar algolink-10.12.jar ....
 
 ## Formatters
 
-The custom formatter com.artistech.utils.logging.ShortenedNameFormatter will print out the first letter of the package path.
+The custom formatter `com.artistech.utils.logging.ShortenedNameFormatter` will print out the first letter of the package path.
 
 ```
 2016-06-07T14:33:00 FINE [caul.SwingComponentHandler] Started...
@@ -54,7 +54,7 @@ SwingComponentHandler is located in com.artistech.utils.logging.
 
 ## GUI Console logging
 
-The custom handler for printing to a Java Swing GUI component is com.artistech.utils.logging.SwingComponentHandler and can be added to the handlers section if desired. If the container class for the GUI cannot be found (AlgoLink not running in GUI mode) then the handler is removed from the list.
+The custom handler for printing to a Java Swing GUI component is `com.artistech.utils.logging.SwingComponentHandler` and can be added to the handlers section if desired. If the container class for the GUI cannot be found (AlgoLink not running in GUI mode) then the handler is removed from the list.
 
 ```
 # Logging
