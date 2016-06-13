@@ -2,7 +2,13 @@
 
 Using tomcat or Jetty, AlgoLink can be accessed as a web-service for integration into external applications.
 
-Integration is performed using GET/POST to exposed functionality. These are ReST-like; but to aid in development, bindings for [Python](Python/), [C++](Cpp/), and [Java](Java/) are provided.
+Integration is performed using GET/POST to exposed functionality. These are ReST-like; but to aid in development.
+
+## bindings
+
+- [C++](Cpp/)
+- [Java](Java/)
+- [Python](Python/)
 
 ## Shim
 

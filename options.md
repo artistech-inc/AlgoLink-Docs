@@ -3,7 +3,7 @@
     - neutralPopulation: This option is used to guarantee a population of at least a certain size. Some organizations have a maximum possible size which is calculated and with then expand the population by the calculated value.
     - duration: this is the number of Ticks/Minutes that the simulation will complete. At this time it is not possible to set an indeterminate time span.
     - startTime: The time at which the simulation's internal time will start.
-    - commFilter: Different filters for which to check to see if a communication can be successfuly transmitted. Traditionally, this should be AlgoLink.Core.CommunicationFilters.PassThrough unless it is known specifically that a different filter is desired.
+    - commFilter: Different filters for which to check to see if a communication can be successfuly transmitted. Traditionally, this should be `com.artistech.algolink.core.commfilters.PassThrough` unless it is known specifically that a different filter is desired.
 - Output Formats
     - Edin Writer:Initial output format used by NSCTA which was then converted to the polymake format listed below.
     - Json Comms Writer: An JSON file that has the list of all communications made by AlgoLink.

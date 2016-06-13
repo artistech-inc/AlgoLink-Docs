@@ -5,7 +5,7 @@
 
 AlgoLink is an event-driven, agent-inspired framework for modeling simulations involving entities in varying social organizations and groups.<br>
 
-![](images/AlgoLink-desktop.png)
+![GUI Image](images/AlgoLink-desktop.png)
 
 ## Controlled Message DB Generation for Intel Application. Testing.
 
@@ -41,9 +41,14 @@ AlgoLink eliminates simple auto-generated message structures which would make it
 
 ## Documentation
 
+- [Development](development/)
 - [Distributed/Enterprise](distributed.md)
 - [Integration with third-party applications](integration.md)
 - [Configuring Logging](logging.md)
-- [Initializing a Simulation](simulation-initialization.md)
-- [Developing AlgoLink Modules](development/README.md)
 - [User Cases](UseCases/)
+    - [Camp Roberts 2015](UseCases/camproberts2015.md)
+    - [Test Server Instance](UseCases/server-test-instance.md)
+    - [Initializing a Simulation](UseCases/simulation-initialization.md)
+- [Options](options.md)
+- [Requirements](requirements.md)
+    - [Tomcat](tomcat.md)

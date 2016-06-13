@@ -23,7 +23,7 @@ This will then start up a Jetty web server on port 8081 (if this fails, it will 
 
 ## Design Considerations
 
-The master and each satellite is designed to run on a separate computer/VM. The application uses properties files in a hidden directory to determine execution. These properties files are located in: ~/.ArtisTech/AlgoLink/conf
+The master and each satellite is designed to run on a separate computer/VM. The application uses properties files in a hidden directory to determine execution. These properties files are located in: `~/.ArtisTech/AlgoLink/conf`
 
 ## Configuration
 
@@ -36,9 +36,9 @@ This is the default mode for AlgoLink. Each organization is parceled out to wait
 
 #### Master
 
-You will need to configure this file: conf-examples/distributed/master/OpenMqFactory.properties and set the IP address of the installed OpenMQ server.
+You will need to configure this file: `conf-examples/distributed/master/OpenMqFactory.properties` and set the IP address of the installed OpenMQ server.
 
-These file(s) will need to be located in ~/.ArtisTech/AlgoLink/conf/
+These file(s) will need to be located in `~/.ArtisTech/AlgoLink/conf/`
 
 --------------------------------------------------------------------------------
 
@@ -50,10 +50,10 @@ java -jar algolink-ent-10.12.jar -bsh node.bsh
 
 You will need to configure two files:
 
-- Random.properties set the seed value to a unique value amongst all satellites. seed = 52
-- OpenMqFactory.properties Set the IP address of the installed OpenMQ server.
+- `Random.properties` set the seed value to a unique value amongst all satellites. seed = 52
+- `OpenMqFactory.properties` Set the IP address of the installed OpenMQ server.
 
-These file(s) will need to be located in ~/.ArtisTech/AlgoLink/conf/
+These file(s) will need to be located in `~/.ArtisTech/AlgoLink/conf/`
 
 ### Pre-configured Satellite Organizations
 
@@ -61,11 +61,11 @@ This is a legacy mode for AlgoLink. The new method of configuring satellites is 
 
 #### Master
 
-You will need to configure this file: conf-examples/distributed/master/OpenMqFactory.properties and set the IP address of the installed OpenMQ server.
+You will need to configure this file: `conf-examples/distributed/master/OpenMqFactory.properties` and set the IP address of the installed OpenMQ server.
 
-DataBuilderConfig.properties must set parcelToSatellites to false. Or the DataBuilderConfig value in the bean shell script value must set setParcelToSatellites(false). The Default value is true.
+`DataBuilderConfig.properties` must set `parcelToSatellites` to false. Or the `DataBuilderConfig` value in the bean shell script value must set `setParcelToSatellites(false)`. The Default value is `true`.
 
-These file(s) will need to be located in ~/.ArtisTech/AlgoLink/conf/
+These file(s) will need to be located in `~/.ArtisTech/AlgoLink/conf/`
 
 --------------------------------------------------------------------------------
 
@@ -73,7 +73,7 @@ These file(s) will need to be located in ~/.ArtisTech/AlgoLink/conf/
 
 satellite (sat-01): You will need to configure three files:
 
-- DistributedNode.properties example confiuration:
+- `DistributedNode.properties` example confiuration:
 
 ```
 name = Node1
@@ -88,16 +88,16 @@ customization values to the scenario configuration. In this case, I am accepting
 the defaults.
 ```
 
-- Random.properties set the seed value to a unique value amongst all satellites. seed = 52
-- OpenMqFactory.properties Set the IP address of the installed OpenMQ server.
+- `Random.properties` set the seed value to a unique value amongst all satellites. seed = 52
+- `OpenMqFactory.properties` Set the IP address of the installed OpenMQ server.
 
-These file(s) will need to be located in ~/.ArtisTech/AlgoLink/conf/
+These file(s) will need to be located in `~/.ArtisTech/AlgoLink/conf/`
 
 --------------------------------------------------------------------------------
 
 satellite (sat-02 & sat-03): You will need to configure three files:
 
-- DistributedNode.properties example confiuration:
+- `DistributedNode.properties` example confiuration:
 
 ```
 name = Node1
@@ -112,14 +112,14 @@ the scenario configuration. In this case, I am setting the # of communications
 to 500 / minute.
 ```
 
-- Random.properties set the seed value to a unique value amongst all satellites. seed = 52
-- OpenMqFactory.properties Set the IP address of the installed OpenMQ server.
+- `Random.properties` set the seed value to a unique value amongst all satellites. seed = 52
+- `OpenMqFactory.properties` Set the IP address of the installed OpenMQ server.
 
-These file(s) will need to be located in ~/.ArtisTech/AlgoLink/conf/
+These file(s) will need to be located in `~/.ArtisTech/AlgoLink/conf/`
 
 ## Running
 
-The satellite instances will need to be started first. Once each instance is configured as desired, it should be invoked using the node.bsh script. The node.bsh script will need to be extracted from the lib/AlgoLink-Core.jar file. It is located at 'com/artistech/algolink/bsh/node.bsh'. The master.bsh script is located in the same directory.
+The satellite instances will need to be started first. Once each instance is configured as desired, it should be invoked using the `node.bsh` script. The `node.bsh` script will need to be extracted from the `lib/algolink-core-10.12.jar` file. It is located at `com/artistech/algolink/bsh/node.bsh`. The `master.bsh` script is located in the same directory.
 
 Start the script in AlgoLink with the following command:
 
@@ -135,4 +135,4 @@ java -jar AlgoLink-Ent/AlgoLink-Ent.jar -bsh master.bsh
 
 This will broadcast on OpenMQ for all listening satellites. After accepting that all have been found and have responded (waiting 10 seconds), the master will tell all satellites to configure themselves and then the simulation will start.
 
-Output to the simulation is located on the master VM under ~/.ArtisTech/Algolink/commuications
+Output to the simulation is located on the master VM under `~/.ArtisTech/Algolink/commuications`

@@ -58,7 +58,7 @@ public class AlgoLink {
                     }
                 }
             } catch (IOException | IllegalStateException ex) {
-                logger.log(Level.SEVERE, null, ex);
+                LOGGER.log(Level.SEVERE, null, ex);
             } finally {
             }
             return ret;
@@ -77,7 +77,7 @@ public class AlgoLink {
             try {
                 ret = (JSONObject) _parser.parse(ret_str);
             } catch (org.json.simple.parser.ParseException ex) {
-                logger.log(Level.SEVERE, null, ex);
+                LOGGER.log(Level.SEVERE, null, ex);
             }
 
             return ret;
@@ -90,7 +90,7 @@ public class AlgoLink {
             try {
                 ret = (JSONArray) _parser.parse(ret_str);
             } catch (org.json.simple.parser.ParseException ex) {
-                logger.log(Level.SEVERE, null, ex);
+                LOGGER.log(Level.SEVERE, null, ex);
             }
 
             return ret;
@@ -135,11 +135,11 @@ public class AlgoLink {
                     }
 
                 } catch (IOException | IllegalStateException ex) {
-                    logger.log(Level.SEVERE, null, ex);
+                    LOGGER.log(Level.SEVERE, null, ex);
                 } finally {
                 }
             } catch (UnsupportedEncodingException ex) {
-                logger.log(Level.SEVERE, null, ex);
+                LOGGER.log(Level.SEVERE, null, ex);
             }
             return ret;
         }
@@ -161,7 +161,7 @@ public class AlgoLink {
             try {
                 ret = (JSONObject) _parser.parse(ret_str);
             } catch (org.json.simple.parser.ParseException ex) {
-                logger.log(Level.SEVERE, null, ex);
+                LOGGER.log(Level.SEVERE, null, ex);
             }
 
             return ret;
@@ -175,7 +175,7 @@ public class AlgoLink {
                 Object ret2 = _parser.parse(ret_str);
                 return ret2;
             } catch (org.json.simple.parser.ParseException ex) {
-                logger.log(Level.SEVERE, null, ex);
+                LOGGER.log(Level.SEVERE, null, ex);
             }
 
             return ret;
@@ -188,7 +188,7 @@ public class AlgoLink {
             try {
                 ret = (JSONArray) _parser.parse(ret_str);
             } catch (org.json.simple.parser.ParseException ex) {
-                logger.log(Level.SEVERE, null, ex);
+                LOGGER.log(Level.SEVERE, null, ex);
             }
 
             return ret;
@@ -201,18 +201,18 @@ public class AlgoLink {
             try {
                 ret = (JSONArray) _parser.parse(ret_str);
             } catch (org.json.simple.parser.ParseException ex) {
-                logger.log(Level.SEVERE, null, ex);
+                LOGGER.log(Level.SEVERE, null, ex);
             }
 
             return ret;
         }
     }
 
-    private final static String DefaultServer = "http://algolink.artistech.com:8080/";
+    private final static String DEFAULT_SERVER = "http://algolink.artistech.com:8080/";
     private String _server;
     private String _id;
     private WebClient _client;
-    private static final Logger logger = Logger.getLogger(AlgoLink.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(AlgoLink.class.getName());
 
     static {
     }
@@ -230,7 +230,7 @@ public class AlgoLink {
     }
 
     public AlgoLink() {
-        this(DefaultServer);
+        this(DEFAULT_SERVER);
     }
 
     public String getServer() {
@@ -257,7 +257,7 @@ public class AlgoLink {
     public String login() {
         if (!this.isLoggedIn()) {
             this._id = this._client.do_get_string("login.json");
-            logger.log(Level.FINER, "Login: {0}", this._id);
+            LOGGER.log(Level.FINER, "Login: {0}", this._id);
         }
         return this._id;
     }
@@ -274,7 +274,7 @@ public class AlgoLink {
             try {
                 ret.add((String) obj1);
             } catch (Exception ex) {
-                logger.log(Level.SEVERE, null, ex);
+                LOGGER.log(Level.SEVERE, null, ex);
             }
         }
         return ret;
@@ -287,7 +287,7 @@ public class AlgoLink {
             try {
                 ret.add((String) obj1);
             } catch (Exception ex) {
-                logger.log(Level.SEVERE, null, ex);
+                LOGGER.log(Level.SEVERE, null, ex);
             }
         }
         return ret;
@@ -311,7 +311,7 @@ public class AlgoLink {
             try {
                 ret.add((String) obj1);
             } catch (Exception ex) {
-                logger.log(Level.SEVERE, null, ex);
+                LOGGER.log(Level.SEVERE, null, ex);
             }
         }
         return ret;
@@ -324,7 +324,7 @@ public class AlgoLink {
             params.put("type", type);
             ret = this._client.do_post_object("configSchema.json", params);
         } catch (Exception ex) {
-            logger.log(Level.SEVERE, null, ex);
+            LOGGER.log(Level.SEVERE, null, ex);
         }
         return ret;
     }
@@ -563,17 +563,16 @@ public class AlgoLink {
     }
 
     public static void main(String[] args) {
-        com.artistech.utils.logging.Logging.initLogging();
         test("http://localhost:8084/AlgoLink/");
     }
 
     public static void test(String server) {
         AlgoLink a = new AlgoLink(server);
-        logger.log(Level.INFO, "Server:        {0}", a.getServer());
-        logger.log(Level.INFO, "Is Logged In:  {0}", a.isLoggedIn());
-        logger.log(Level.INFO, "Login:         {0}", a.login());
-        logger.log(Level.INFO, "Is Logged I:   {0}", a.isLoggedIn());
-        logger.log(Level.INFO, "ID:            {0}", a.getId());
+        LOGGER.log(Level.INFO, "Server:        {0}", a.getServer());
+        LOGGER.log(Level.INFO, "Is Logged In:  {0}", a.isLoggedIn());
+        LOGGER.log(Level.INFO, "Login:         {0}", a.login());
+        LOGGER.log(Level.INFO, "Is Logged I:   {0}", a.isLoggedIn());
+        LOGGER.log(Level.INFO, "ID:            {0}", a.getId());
 
         String __BUILDER_TYPE__ = "com.artistech.algolink.core.DataBuilderConfig";
         String __TEST_TYPE__ = "com.artistech.algolink.orgs.scenario1.Scenario1Config";
@@ -614,12 +613,12 @@ public class AlgoLink {
 
         Object create_population_output = a
                 .createPopulation(org_list, true);
-        logger.log(Level.FINER, "createPopulation: {0}", create_population_output.toString());//.toJSONString());
+        LOGGER.log(Level.FINER, "createPopulation: {0}", create_population_output.toString());//.toJSONString());
 
         Boolean complete = false;
         while (!complete) {
             JSONObject t = a.tick();
-            logger.log(Level.FINER, "tick: {0}", t.get("time").toString());
+            LOGGER.log(Level.FINER, "tick: {0}", t.get("time").toString());
             complete = (Boolean) t.get("complete");
             if (!complete) {
                 List<JSONObject> queuedCommunications = a.getQueuedCommunications();
@@ -631,7 +630,7 @@ public class AlgoLink {
             }
         }
 
-        logger.log(Level.INFO, "Logout:        {0}", a.logout());
-        logger.log(Level.INFO, "Is Logged In:  {0}", a.isLoggedIn());
+        LOGGER.log(Level.INFO, "Logout:        {0}", a.logout());
+        LOGGER.log(Level.INFO, "Is Logged In:  {0}", a.isLoggedIn());
     }
 }

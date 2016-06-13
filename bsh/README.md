@@ -1,29 +1,41 @@
-# Bean Shell Scripts
+# Files
 
-Scripts are useful for maintaining easily configurable and powerful command line level processing. These scripts can also be loaded, edited, and run directly from within the AlgoLink GUI.
+- [camproberts2015.bsh](camproberts2015.bsh)
+- [consensus2.bsh](consensus2.bsh)
+- [consensus.bsh](consensus.bsh)
+- [edge.bsh](edge.bsh)
+- [hierarchy.bsh](hierarchy.bsh)
+- [katana.bsh](katana.bsh)
+- [noise.bsh](noise.bsh)
+- [noise-uni.bsh](noise-uni.bsh)
+- [qoi.bsh](qoi.bsh)
+- [random-orgs.bsh](random-orgs.bsh)
+- [README.md](README.md)
+- [resonance.bsh](resonance.bsh)
+- [scenario1a.bsh](scenario1a.bsh)
+- [scenario1.bsh](scenario1.bsh)
+- [serialize.bsh](serialize.bsh)
+- [smalltalk1.bsh](smalltalk1.bsh)
+- [sp-uni.bsh](sp-uni.bsh)
+- [syncoin.bsh](syncoin.bsh)
+- [tab2014.bsh](tab2014.bsh)
 
-```
-java -jar algolink-cli-10.12.jar -bsh consensus2.bsh -v k=1.1 -v q=2
-```
+## Enterprise
 
-The script to run is set with the -bsh option, and variables that need to be passed into the bsh script are set using the -v argument. This can allow shell scripts to invoke many different simulations serially with different parameter values.
-
-When writing scripts; detect passed in variables in the script:
-
-```java
-if (k == void) {
-    //set a default value if no value is passed in.
-    k = 4;
-} else {
-    //read in the passed in value; the passed in value is of type String and may require conversion.
-    k = Double.parseDouble(k);
-}
-
-if (q == void) {
-    //set a default value if no value is passed in.
-    q = 4;
-} else {
-    //read in the passed in value; the passed in value is of type String and may require conversion.
-    q = Integer.parseInt(q);
-}
-```
+- [emane.bsh](ent/emane.bsh)
+- [emane-no-shim.bsh](ent/emane-no-shim.bsh)
+- [master.bsh](ent/master.bsh)
+- [master-web.bsh](ent/master-web.bsh)
+- [mq.bsh](ent/mq.bsh)
+- [node.bsh](ent/node.bsh)
+- [noise-ent-broadcast.bsh](ent/noise-ent-broadcast.bsh)
+- [noise-ent.bsh](ent/noise-ent.bsh)
+- [noise-ent-no-broadcast.bsh](ent/noise-ent-no-broadcast.bsh)
+- [noise-ent-var.bsh](ent/noise-ent-var.bsh)
+- [nscta-qoi.bsh](ent/nscta-qoi.bsh)
+- [scenario1-ent.bsh](ent/scenario1-ent.bsh)
+- [server.bsh](ent/server.bsh)
+- [sp-ent.bsh](ent/sp-ent.bsh)
+- [sp-ent-var.bsh](ent/sp-ent-var.bsh)
+- [zero-node.bsh](ent/zero-node.bsh)
+- [zero-noise-ent-var.bsh](ent/zero-noise-ent-var.bsh)
