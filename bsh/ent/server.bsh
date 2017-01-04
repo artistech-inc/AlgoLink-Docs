@@ -1,0 +1,161 @@
+import com.artistech.algolink.AlgoLinkInfo;
+import com.artistech.algolink.orgs.consensus2.Consensus2Config;
+import com.artistech.algolink.core.PopulationConfig;
+import com.artistech.algolink.core.DataBuilderConfig;
+import com.artistech.utils.Random;
+import com.artistech.utils.TypeHandler;
+import com.artistech.utils.logging.Logging;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import com.artistech.algolink.mq.Server;
+import com.artistech.algolink.mq.ClientConfigEvent;
+
+//not strictly necessary, but if running multiple
+//simulations in serial in the same script, this would be necessary
+Random.reset(true);
+Logging.initLogging(new AlgoLinkInfo());
+
+//create a logger
+Logger logger = Logger.getLogger("com.artistech.algolink.bsh.server");
+
+if (randomSeed == void) {
+    randomSeed = 51;
+} else {
+    randomSeed = Integer.parseInt(randomSeed);
+}
+
+if (duration == void) {
+    duration = 2000000;
+} else {
+    duration = Integer.parseInt(duration);
+}
+
+if (size == void) {
+    size = 200;
+} else {
+    size = Integer.parseInt(size);
+}
+
+if (numberOfGroups == void) {
+    numberOfGroups = 2;
+} else {
+    numberOfGroups = Integer.parseInt(numberOfGroups);
+}
+
+if (sizeOfGroups == void) {
+    sizeOfGroups = 2;
+} else {
+    sizeOfGroups = Integer.parseInt(sizeOfGroups);
+}
+
+if (similarityThreshold == void) {
+    similarityThreshold = 3;
+} else {
+    similarityThreshold = Integer.parseInt(similarityThreshold);
+}
+
+if (numberOfTopics == void) {
+    numberOfTopics = 5;
+} else {
+    numberOfTopics = Integer.parseInt(numberOfTopics);
+}
+
+if (numberOfOpinionValues == void) {
+    numberOfOpinionValues = 2;
+} else {
+    numberOfOpinionValues = Integer.parseInt(numberOfOpinionValues);
+}
+
+if (noChangeThreshold == void) {
+    noChangeThreshold = 2000;
+} else {
+    noChangeThreshold = Integer.parseInt(noChangeThreshold);
+}
+
+int[] kValues = new int[]{ 2, 4, 7 };
+int[] sValues = new int[]{ 2, 3 };
+
+ObjectMapper mapper = new ObjectMapper();
+
+ArrayList list = new ArrayList();
+
+for(int r = 0; r < 15; r++) {
+    randomSeed = 3751 + r;
+    for(int kIndex = 0; kIndex < kValues.length; kIndex++) {
+        int k = kValues[kIndex];
+        for(int sIndex = 1; sIndex < sValues.length; sIndex++) {
+            int s = sValues[sIndex];
+            for(int q = 8; q >= 2; q--) {
+                //change seed value
+                //default is 51
+            	int phi = 3;
+                numberOfGroups = k;
+                sizeOfGroups = s;
+                numberOfOpinionValues = q;
+
+                //initialize configs:
+                Consensus2Config nc = new Consensus2Config();
+                //number of turns to detect no changes being made
+                nc.setNoChangeThreshold(noChangeThreshold);
+                //size of the organization
+                nc.setN(size);
+                //this is the average number of groups that an entity belongs to
+                nc.setK(numberOfGroups);
+                //this is the size of a group
+                nc.setS(sizeOfGroups);
+                //similarity threshold for rewire
+                nc.setPhi(phi);
+                //number of topics
+                nc.setF(numberOfTopics);
+                //number of values for a topic
+                nc.setQ(numberOfOpinionValues);
+
+                //com.artistech.utils.Random.setSeed(randomSeed);
+                //logger.log(Level.INFO, "Random Seed:                      {0}", new Object[]{ com.artistech.utils.Random.getSeed() });
+                //logger.log(Level.INFO, "Duration:                         {0}", new Object[]{ duration });
+                //logger.log(Level.INFO, "Organization Size:                {0}", new Object[]{ nc.getN() });
+                //logger.log(Level.INFO, "Number of Groups:                 {0}", new Object[]{ nc.getK() });
+                //logger.log(Level.INFO, "Size of Groups:                   {0}", new Object[]{ nc.getS() });
+                //logger.log(Level.INFO, "Similarity Threshold:             {0}", new Object[]{ nc.getPhi() });
+                //logger.log(Level.INFO, "Number of Topics:                 {0}", new Object[]{ nc.getF() });
+                //logger.log(Level.INFO, "Number of Opinion Values:         {0}", new Object[]{ nc.getQ() });
+                //logger.log(Level.INFO, "No Change Threshold:              {0}", new Object[]{ noChangeThreshold });
+
+                PopulationConfig pc = new PopulationConfig();
+                DataBuilderConfig dbc = new DataBuilderConfig();
+
+                //set parameter values:
+                dbc.setDuration(duration);
+                dbc.setRealTimeFactor(0);
+                dbc.setName("consensus2-bsh." + randomSeed + "-randomSeed." + nc.getN() + "-size." + nc.getF() + "-opinions." + nc.getQ() + "-values." + nc.getPhi() + "-similarity." + nc.getK() + "-num_groups." + nc.getS() + "-grp_size");
+                dbc.setTicking(false);
+                pc.setSize(nc.getN());
+
+                String orgConfig = mapper.writeValueAsString(nc);
+                String dbConfig = mapper.writeValueAsString(dbc);
+                String popConfig = mapper.writeValueAsString(pc);
+                //(Calendar time, String uuid, String name, String type, String config, String target, String dataBuilderConfig, String popConfig, int randomSeed)
+                ClientConfigEvent cce = new ClientConfigEvent(dbc.getStartTime(), "", "", nc.getClass().getName(), orgConfig, "", dbConfig, popConfig, randomSeed);
+                list.add(cce);
+            }
+        }
+    }
+}
+
+Server server = new com.artistech.algolink.mq.Server();
+server.runInit();
+logger.log(Level.INFO, "Sending messages...");
+for(ClientConfigEvent cce : list) {
+    logger.log(Level.INFO, "CONFIG: {0}", cce.getConfig());
+    logger.log(Level.INFO, "DATA BUILDER: {0}", cce.getDataBuilderConfig());
+    logger.log(Level.INFO, "POPULATION: {0}", cce.getPopConfig());
+    logger.log(Level.INFO, "RANDOM: {0}", cce.getRandomSeed());
+    server.submitMessage(Server.BroadcastType.QUEUE, cce);
+}
+logger.log(Level.INFO, "Waiting for responses...");
+server.waitForClose();

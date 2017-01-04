@@ -1,0 +1,23 @@
+---
+layout: page
+title: Description of important options/commands
+permalink: /options/
+---
+- Common DataBuilder Options
+    - neutralPopulation: This option is used to guarantee a population of at least a certain size. Some organizations have a maximum possible size which is calculated and with then expand the population by the calculated value.
+    - duration: this is the number of Ticks/Minutes that the simulation will complete. At this time it is not possible to set an indeterminate time span.
+    - startTime: The time at which the simulation's internal time will start.
+    - commFilter: Different filters for which to check to see if a communication can be successfuly transmitted. Traditionally, this should be `com.artistech.algolink.core.commfilters.PassThrough` unless it is known specifically that a different filter is desired.
+- Output Formats
+    - Edin Writer:Initial output format used by NSCTA which was then converted to the polymake format listed below.
+    - Json Comms Writer: An JSON file that has the list of all communications made by AlgoLink.
+    - Gexf Writer (Dynamic): [Gexf](http://gexf.net/format/) formatted output with times for displaying dynamic data as spells.
+    - Gexf Writer (Dynamic w/ Spells): [Gexf](http://gexf.net/format/) formatted output with times for displaying dynamic data.
+    - Gexf Writer (Edge Wight): [Gexf](http://gexf.net/format/) formatted output where each communication increases the weight of an edge node in the graph so that common pairing is more easily visible.
+    - GraphML: [GraphML](http://graphml.graphdrawing.org/) formatted output.
+    - Graphviz: [Graphviz](http://www.graphviz.org/) formatted output.
+    - Polymake Writer: formatted for input into a custom [polymake](http://www.polymake.org/) script.
+    - Viz Tools: Output to a text format suitable for reading in Viz Tools. Viz Tools is used internally by the NSCTA.
+    - Xml Comms Writer: An Xml file that has the list of all communications made by AlgoLink.
+- Saving a configuration: Instead of setting the values of a configuration for every simulation, it is possible to build the configuration and then save the settings to an Xml file. To do this, build the configuration as desired, then select Generate Config Only under Actions. Once the file is saved, it can be uploaded using the Load AlgoLink Config file upload.
+- Building a test population: Using the Build Population option will create the simulation's population but will not start the simulation. This allows the ability to double-check that the population size and configuration is as desired.

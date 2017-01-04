@@ -1,0 +1,181 @@
+//--------------------------------------------------------------------
+//SCRIPT FOR RUNNING THE NSCTA QOI SIMULATION
+//--------------------------------------------------------------------
+//init the variables that can be passed in as a command line argument:
+//duration = the duration of the simulation (default 120)
+//realTimeFactor = the speed factor used to slow the simulation down (default 500)
+//randomSeed = the seed for the random number generator (default = 51)
+//--------------------------------------------------------------------
+//to set these on the command line use the -v option
+//java -Xmx4g -jar AlgoLink-nscta.jar -bsh nscta-qoi.bsh -v randomSeed=41 -v condition=Condition2 -v shimTimeout=1000 -v responseSize=60000
+//--------------------------------------------------------------------
+
+import com.artistech.algolink.core.*;
+import com.artistech.algolink.writers.*;
+import com.artistech.algolink.nscta.shim.*;
+import com.artistech.algolink.nscta.qoi.*;
+
+import com.artistech.algolink.AlgoLinkInfo;
+
+import com.artistech.algolink.core.PopulationConfig;
+import com.artistech.utils.logging.Logging;
+import java.util.Calendar;
+import java.util.logging.Logger;
+import java.util.logging.Level;
+
+//initialize the logging
+Logging.initLogging(new AlgoLinkInfo());
+
+//create a logger
+Logger logger = Logger.getLogger("com.artistech.algolink.bsh.nscta-qoi");
+
+if (randomSeed == void) {
+    randomSeed = 51;
+} else {
+    randomSeed = Integer.parseInt(randomSeed);
+}
+
+if (duration == void) {
+    duration = 120;
+} else {
+    duration = Integer.parseInt(duration);
+}
+
+if (realTimeFactor == void) {
+    realTimeFactor = 1000;
+} else {
+    realTimeFactor = Integer.parseInt(realTimeFactor);
+}
+
+if (matrixFile == void) {
+    matrixFile = "matrix";
+}
+
+if (localIp == void) {
+    localIp = "172.16.1.254";
+}
+
+if (humanDecisionDelay == void) {
+    humanDecisionDelay = 5000;
+} else {
+    humanDecisionDelay = Integer.parseInt(humanDecisionDelay);
+}
+
+//if (responseSize == void) {
+//    responseSize = 3000;
+//} else {
+//    responseSize = Integer.parseInt(responseSize);
+//}
+
+//if (requestSize == void) {
+//    requestSize = 10000;
+//} else {
+//    requestSize = Integer.parseInt(requestSize);
+//}
+
+if (shimTimeout == void) {
+    shimTimeout = 250;
+} else {
+    shimTimeout = Long.parseLong(shimTimeout);
+}
+
+if (stackLoc == void) {
+    stackLoc = 20;
+} else {
+    stackLoc = Integer.parseInt(stackLoc);
+}
+
+logger.log(Level.INFO, "Setting Real Time Factor: {0}", new Object[]{Integer.toString(realTimeFactor)});
+logger.log(Level.INFO, "Setting Duration: {0}", new Object[]{Integer.toString(duration)});
+logger.log(Level.INFO, "Setting Random Seed: {0}", new Object[]{Integer.toString(randomSeed)});
+//logger.log(Level.INFO, "Setting Shim Response Size: {0}", new Object[]{Integer.toString(responseSize)});
+//logger.log(Level.INFO, "Setting Shim Request Size: {0}", new Object[]{Integer.toString(requestSize)});
+logger.log(Level.INFO, "Setting Shim Timeout: {0} ms", new Object[]{Long.toString(shimTimeout)});
+logger.log(Level.INFO, "Setting StackLoc: {0}", new Object[]{Integer.toString(stackLoc)});
+logger.log(Level.INFO, "Setting Matrix File: {0}", matrixFile);
+logger.log(Level.INFO, "Setting Local IP: {0}", localIp);
+logger.log(Level.INFO, "Setting Human Decision Delay: {0}", humanDecisionDelay);
+
+//init random
+com.artistech.utils.Random.setSeed(randomSeed);
+com.artistech.utils.Random.reset(true);
+
+//create the nscta-qoi config object (factory for NsctaQoiOrganization)
+NsctaQoiConfig ec = new NsctaQoiConfig();
+//create the DataBuilderConfig object (factory for the DataBuilder)
+DataBuilderConfig dbc = new DataBuilderConfig();
+//create the PopulationConfig object (factyory for the Population)
+PopulationConfig pc = new PopulationConfig();
+
+//configure the nscta-qoi config object
+ec.setStackLoc(stackLoc);
+
+//config the matrix:
+matrix = new Matrix();
+ec.setMatrix(matrix);
+ec.setLocalIp(localIp);
+ec.setMatrix_file(matrixFile);
+ec.setHumanDecisionDelay(humanDecisionDelay);
+
+//create the organization
+Organization org = ec.createOrganization(Calendar.getInstance());
+//set the size of the population based on the size of the oranization(s)
+pc.setSize(org.getMaxSize());
+
+//create the population
+Population pop = pc.createPopulation(Calendar.getInstance());
+//add the organization(s) to the population
+pop.addOrganization(org, Calendar.getInstance());
+
+//create the shim communication filter
+logger.log(Level.INFO, "Overriding any value set in ExternalCommFilterConfig.properties for timeout");
+com.artistech.algolink.core.commfilters.ExternalCommFilter.setTimeout(shimTimeout);
+QoiShimInterface shimInterface = new QoiShimInterface(ec);
+
+logger.log(Level.INFO, "Overriding any value set in ShimCommFilterConfig.properties for size");
+//This value should now be overriden by ec.getRequest/ResponseSize()
+//filter.setSize(responseSize);
+//set the filter in the databuilder config
+//dbc.setCommFilter(filter);
+dbc.setCommFilter(new com.artistech.algolink.core.commfilters.PassThrough());
+
+//set the duration/realtime factor/name
+dbc.setDuration(duration);
+dbc.setRealTimeFactor(realTimeFactor);
+dbc.setName("nscta-qoi-shim");
+//this should always be false for simulations run in a script
+dbc.setTicking(false);
+
+//create the databuilder
+DataBuilder db = dbc.createDataBuilder(pop);
+shimInterface.initialize("AlgoLink", ec.getLocalIp());
+
+//create writers for serializing communications
+IWriterFactory factory = WriterFactory.defaultFactory();
+IAlgoLinkWriter w = factory.createInstance(JsonCommsWriter.class);
+w.initialize(db);
+
+//initialize, start, and wait
+logger.log(Level.INFO, "DB Initializing...");
+db.initialize();
+logger.log(Level.INFO, "DB Initialized.");
+logger.log(Level.INFO, "All modules have started");
+
+for(Entity ent : org.getMembers()) {
+    nsent = org.getNsctaQoiEntity(ent);
+    o = shimInterface.getModule(nsent.getName());
+    o.setEventListener(nsent);
+}
+
+logger.log(Level.INFO, "All modules initialized as event listeners!");
+
+Thread.sleep(1000);
+
+Calendar start = Calendar.getInstance();
+db.builderThread().start();
+db.waitForTermination();
+Calendar end = Calendar.getInstance();
+
+//print out output
+long consumed = end.getTimeInMillis() - start.getTimeInMillis();
+logger.log(Level.INFO, "Time Consumed: {0} ms", new Object[]{consumed});

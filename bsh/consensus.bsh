@@ -1,0 +1,161 @@
+import com.artistech.algolink.orgs.consensus.ConsensusConfig;
+
+import com.artistech.algolink.orgs.consensus.ConsensusOpinionConfig;
+import com.artistech.algolink.orgs.consensus.ConsensusOpinionSubVariableConfig;
+
+import com.artistech.algolink.AlgoLinkInfo;
+import com.artistech.algolink.core.DataBuilder;
+import com.artistech.algolink.core.DataBuilderConfig;
+import com.artistech.algolink.core.Organization;
+import com.artistech.algolink.core.Population;
+import com.artistech.algolink.core.PopulationConfig;
+import com.artistech.algolink.serializers.IAlgoLinkSerializer;
+import com.artistech.algolink.serializers.JsonSerializer;
+import com.artistech.utils.logging.Logging;
+import com.artistech.algolink.writers.IAlgoLinkWriter;
+import com.artistech.algolink.writers.IWriterFactory;
+import com.artistech.algolink.writers.JsonCommsWriter;
+import com.artistech.algolink.writers.WriterFactory;
+
+//not strictly necessary, but if running multiple
+//simulations in serial in the same script, this would be necessary
+
+import java.util.logging.Logger;
+import java.util.logging.Level;
+
+//initialize the logging
+Logging.initLogging(new AlgoLinkInfo());
+
+//create a logger
+Logger logger = Logger.getLogger("com.artistech.algolink.bsh.consensus");
+
+if (randomSeed == void) {
+    randomSeed = 51;
+} else {
+    randomSeed = Integer.parseInt(randomSeed);
+}
+
+if (initBelief == void) {
+    initBelief = 0.0;
+} else {
+    initBelief = Double.parseDouble(initBelief);
+}
+
+if (intervalNumToComm == void) {
+    intervalNumToComm = 3;
+} else {
+    intervalNumToComm = Integer.parseInt(intervalNumToComm);
+}
+
+if (intervalPercentToComm == void) {
+    intervalPercentToComm = 0.05;
+} else {
+    intervalPercentToComm = Double.parseDouble(intervalPercentToComm);
+}
+
+//change seed value
+//default is 51
+com.artistech.utils.Random.setSeed(randomSeed);
+logger.log(Level.INFO, "Random Seed: {0}", new Object[]{ com.artistech.utils.Random.getSeed() });
+logger.log(Level.INFO, "Init Belief: {0}", new Object[]{ initBelief });
+logger.log(Level.INFO, "Interval Num To Comm: {0}", new Object[]{ intervalNumToComm });
+logger.log(Level.INFO, "Interval Percent To Comm: {0}", new Object[]{ intervalPercentToComm });
+
+//double persuasiveFactor = 0.01;
+//int ii = 1;
+//int jj = 0;
+//for(int ii = 1; ii <= 4; ii++) {
+//    for(int jj = 1; jj <= 5; jj++) {
+//    double p = 0.2 * jj;
+        com.artistech.utils.Random.reset(true);
+
+        //initialize configs:
+        ConsensusConfig nc = new ConsensusConfig();
+        nc.setIntervalNumToComm(intervalNumToComm);
+        nc.setIntervalPercentToComm(intervalPercentToComm);
+        PopulationConfig pc = new PopulationConfig();
+        DataBuilderConfig dbc = new DataBuilderConfig();
+
+        nc.clearOpinions();
+        double persuasiveFactor = 0.01;
+        double beliefFactor = 0.01;
+        ArrayList opinions = new ArrayList();
+        for(int ii = 1; ii <= 20; ii++) {
+            for(double ll = 5.0; ll <= 20.0; ll += 5.0) {
+//            for(int jj = 1; jj <= 20; jj++) {
+                int jj = 0;
+                ConsensusOpinionConfig csvc = new ConsensusOpinionConfig();
+                csvc.setId("opinion-p" + (ii < 10 ? "0" : "") + Integer.toString(ii) + "-b" + (jj < 10 ? "0" : "") + Integer.toString(jj) + "-i" + Double.toString(ll / 100.0));
+                csvc.setAllowNoOpinion(false);
+                csvc.setPersuasion(0.75);
+                csvc.setPersuasiveness(ii * persuasiveFactor);
+                csvc.setPercentCommittedBelief(jj * beliefFactor);
+                csvc.setPercentCommittedDisbelief(0.0);
+                csvc.setPercentUncommittedBelief(ll / 100.0);// - csvc.getPercentCommittedBelief());
+//                if (initBelief > 0) {
+//                    csvc.setPercentUncommittedBelief(initBelief - csvc.getPercentCommittedBelief());
+//                } else {
+//                    csvc.setPercentUncommittedBelief(0.0);
+//                }
+                ArrayList foo = new ArrayList();
+                for(int kk = 1; kk <= 2; kk++) {
+                    ConsensusOpinionSubVariableConfig csvc2 = new ConsensusOpinionSubVariableConfig();
+                    csvc2.setId("subvar" + Integer.toString(kk));
+                    foo.add(csvc2);
+                }
+                csvc.setSubVariables(foo);
+                opinions.add(csvc);
+//            }
+            }
+        }
+        nc.setOpinions(opinions);
+//        double f = ii * persuasiveFactor;
+//        logger.log(Level.INFO, "Setting Percent Committed Belief: {0}", new Object[]{ f });
+//        logger.log(Level.INFO, "Setting Persuasiveness: {0}", new Object[]{ p });
+//        for(ConsensusOpinionConfig cfg : nc.getOpinions()) {
+//    //        cfg.setPercentCommittedBelief(0.0);
+//            cfg.setPercentCommittedBelief(f);
+//            cfg.setPercentCommittedDisbelief(0.0);
+//            cfg.setPersuasiveness(p);
+//    //        cfg.setPercentCommittedDisbelief(f / 3.0);
+//        }
+
+        //set parameter values:
+        dbc.setDuration(1440 * 28 * 3);
+        dbc.setRealTimeFactor(0);
+//        dbc.setName("consensus-bsh-" + Double.toString(f) + "-" + Double.toString(p));
+        dbc.setName("consensus-bsh-init50-" +  Integer.toString(com.artistech.utils.Random.getSeed()));
+        dbc.setTicking(false);
+        pc.setSize(nc.getSize());
+
+        //initialize orgs:
+        Organization org = nc.createOrganization(dbc.getStartTime());
+
+        //create population:
+        Population pop = pc.createPopulation(dbc.getStartTime());
+        pop.addOrganization(org, dbc.getStartTime());
+
+        //create databuilder:
+        DataBuilder db = dbc.createDataBuilder(pop);
+
+        //initialize serializers/writers:
+//        IWriterFactory persuasiveFactory = WriterFactory.defaultFactory();
+//        IAlgoLinkWriter w = persuasiveFactory.createInstance(JsonCommsWriter.class);
+//        w.initialize(db);
+        db.initialize();
+
+//        IAlgoLinkSerializer serializer = new JsonSerializer();
+//        serializer.serialize(db, pop);
+
+        //run and wait:
+        if (!dbc.isTicking()) {
+            db.builderThread().start();
+            db.waitForTermination();
+        } else {
+            boolean success;
+            do {
+                success = db.doTick();
+            } while(success);
+        }
+//    }
+//}

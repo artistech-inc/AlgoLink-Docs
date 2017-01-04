@@ -1,0 +1,181 @@
+//--------------------------------------------------------------------
+//SCRIPT FOR RUNNING THE EMANE (SANS SHIM) SIMULATION
+//This will generate a 100% success unless the percentDrop value is changed
+//--------------------------------------------------------------------
+import com.artistech.algolink.nscta.emane.EmaneConfig;
+import com.artistech.algolink.nscta.emane.EmaneOrganization;
+import com.artistech.algolink.nscta.emane.EmaneCondition;
+
+import com.artistech.algolink.core.DataBuilder;
+import com.artistech.algolink.core.DataBuilderConfig;
+import com.artistech.algolink.core.Organization;
+import com.artistech.algolink.core.Population;
+import com.artistech.algolink.core.Group;
+import com.artistech.algolink.core.Entity;
+import com.artistech.algolink.core.PopulationConfig;
+
+import com.artistech.algolink.core.commfilters.PercentDropConfig;
+import com.artistech.algolink.core.commfilters.PercentDropFilter;
+
+import com.artistech.algolink.writers.IAlgoLinkWriter;
+import com.artistech.algolink.writers.IWriterFactory;
+import com.artistech.algolink.writers.JsonCommsWriter;
+import com.artistech.algolink.writers.WriterFactory;
+
+import java.util.Calendar;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+//init the logger
+com.artistech.utils.logging.Logging.initLogging(com.artistech.algolink.AlgoLinkInfo.Instance);
+
+Logger logger = Logger.getLogger("com.artistech.algolink.bsh.emane-no-shim");
+
+Calendar start = Calendar.getInstance();
+
+//--------------------------------------------------------------------
+//init the variables that can be passed in as a command line argument:
+//dropPercent = percent comms to drop at random (default 0.0)
+//condition = the condition to run (default Condition4)
+//duration = the duration of the simulation (default 120)
+//realTimeFactor = the speed factor used to slow the simulation down (default 0)
+//randomSeed = the seed for the random number generator (default = 51)
+//--------------------------------------------------------------------
+//to set these on the command line use the -v option
+//java -Xmx4g -jar AlgoLink-Core.jar -bsh emane-no-shim.bsh -v dropPercent=0.5 -v randomSeed=41 -v condition=Condition2
+//--------------------------------------------------------------------
+
+if (dropPercent == void) {
+    dropPercent = 0.95;
+} else {
+    dropPercent = Double.parseDouble(dropPercent);
+}
+
+if (randomSeed == void) {
+    randomSeed = 51;
+} else {
+    randomSeed = Integer.parseInt(randomSeed);
+}
+
+if (condition == void) {
+    condition = com.artistech.algolink.nscta.emane.EmaneConditionEnum.Condition4;
+} else {
+    condition = EmaneConditionEnum.valueOf(condition);
+}
+
+if (duration == void) {
+    duration = 120;
+} else {
+    duration = Integer.parseInt(duration);
+}
+
+if (realTimeFactor == void) {
+    realTimeFactor = 0;
+} else {
+    realTimeFactor = EmaneConditionEnum.valueOf(realTimeFactor);
+}
+
+if (repeatAttempts == void) {
+    repeatAttempts = 5;
+} else {
+    repeatAttempts = Integer.parseInt(repeatAttempts);
+}
+
+if (condition3QueryReplyChance == void) {
+    condition3QueryReplyChance = 0.5;
+} else {
+    condition3QueryReplyChance = Double.parseDouble(condition3QueryReplyChance);
+}
+
+if (querySize == void) {
+    querySize = 10000;
+} else {
+    querySize = Integer.parseInt(querySize);
+}
+
+if (responseSize == void) {
+    responseSize = 3000;
+} else {
+    responseSize = Integer.parseInt(responseSize);
+}
+
+logger.log(Level.INFO, "Setting Real Time Factor: {0}", new Object[]{realTimeFactor});
+logger.log(Level.INFO, "Setting Duration: {0}", new Object[]{duration});
+logger.log(Level.INFO, "Setting Drop Percent: {0}", new Object[]{dropPercent});
+logger.log(Level.INFO, "Setting Condition: {0}", new Object[]{condition});
+logger.log(Level.INFO, "Setting Random Seed: {0}", new Object[]{randomSeed});
+logger.log(Level.INFO, "Setting Repeat Attempts: {0}", new Object[]{repeatAttempts});
+logger.log(Level.INFO, "Setting Condition3 reply chance: {0}", new Object[]{condition3QueryReplyChance});
+logger.log(Level.INFO, "Setting Query Size: {0}", new Object[]{querySize});
+logger.log(Level.INFO, "Setting Response Size: {0}", new Object[]{responseSize});
+
+//init random
+com.artistech.utils.Random.setSeed(randomSeed);
+com.artistech.utils.Random.reset(true);
+
+//create the config object
+EmaneConfig ec = new EmaneConfig();
+//set the condition
+ec.setCondition(condition);
+ec.setCondition3RetryAttempts(repeatAttempts);
+ec.setCondition3ChanceOfQueryReply(condition3QueryReplyChance);
+ec.setRequestSize(querySize);
+ec.setResponseSize(responseSize);
+logger.log(Level.INFO, "Setting Condition1/2/3/4 Query Duration: {0}", new Object[]{ec.getCondition1CommDuration()});
+logger.log(Level.INFO, "Setting Condition3 Reply Duration: {0}", new Object[]{ec.getCondition3ReplyDuration()});
+
+//create the organization from the config object
+EmaneOrganization org = (EmaneOrganization) ec.createOrganization(Calendar.getInstance());
+
+//create the population config
+PopulationConfig pc = new PopulationConfig();
+//set the size
+pc.setSize(org.getMaxSize());
+
+//create the population
+Population pop = pc.createPopulation(Calendar.getInstance());
+//add the organization
+pop.addOrganization(org, Calendar.getInstance());
+
+//print out the members...
+logger.log(Level.INFO, "Entity Count: {0}", new Object[]{org.size()});
+logger.log(Level.INFO, "Group Count: {0}", new Object[]{org.getGroups().size()});
+for (Group g : org.getGroups()) {
+    logger.log(Level.INFO, "Group Size: {0}", new Object[]{g.size()});
+    for (Entity ent : g.getMembers()) {
+        logger.log(Level.INFO, "Group Member: {0}", new Object[]{ent.getId()});
+    }
+}
+
+//create the data builder config
+DataBuilderConfig dbc = new DataBuilderConfig();
+//set the duration
+dbc.setDuration(duration);
+//set the real time factor
+dbc.setRealTimeFactor(realTimeFactor);
+//set the name
+dbc.setName("emane-" + Double.toString(dropPercent) + "-" + ec.getCondition().toString());
+//set ticking to false (this should not be set to true for this simulation)
+dbc.setTicking(false);
+//set the comm filter
+dbc.setCommFilter(new PercentDropFilter(new PercentDropConfig(dropPercent)));
+
+//create the data builder object
+DataBuilder db = dbc.createDataBuilder(pop);
+//initialize the comms writers
+IWriterFactory factory = WriterFactory.defaultFactory();
+IAlgoLinkWriter w = factory.createInstance(JsonCommsWriter.class);
+w.initialize(db);
+
+//initialize, run, and wait
+db.initialize();
+db.builderThread().start();
+db.waitForTermination();
+
+//print out end info:
+Calendar end = Calendar.getInstance();
+long consumed = end.getTimeInMillis() - start.getTimeInMillis();
+
+logger.log(Level.INFO, "Complete Condition: {0}", new Object[]{condition});
+logger.log(Level.INFO, "Complete Drop Percent: {0}", new Object[]{dropPercent});
+logger.log(Level.INFO, "Time Consumed: {0} ms", new Object[]{consumed});

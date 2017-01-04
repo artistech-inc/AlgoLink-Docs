@@ -1,0 +1,34 @@
+import com.artistech.algolink.mq.DistributedMaster;
+import com.artistech.algolink.AlgoLinkInfo;
+
+import com.artistech.algolink.ent.DataBuilderConfig;
+import com.artistech.algolink.core.PopulationConfig;
+import com.artistech.utils.logging.Logging;
+
+Logging.initLogging(new AlgoLinkInfo());
+
+DataBuilderConfig dbc = new DataBuilderConfig();
+PopulationConfig pc = new PopulationConfig();
+
+//pc.setSize(0);
+dbc.setDuration(20);
+
+pc.setSize(100);
+//dbc.setDuration(1440);
+//dbc.setCommFilter(new com.artistech.algolink.web.commfilters.WebCommFilter());
+//dbc.setSatelliteFilter(new com.artistech.algolink.web.commfilters.WebCommFilter());
+
+for(int ii = 1; ii < 2; ii++) {
+	int factor = (2000 * ii) / 4.0;
+	DistributedMaster dm = new DistributedMaster(dbc, pc);
+//	dm.setOrganizations("{\"noise1\":\"com.artistech.algolink.orgs.noise.NoiseConfig\", \"noise2\":\"com.artistech.algolink.orgs.noise.NoiseConfig\", \"noise3\":\"com.artistech.algolink.orgs.noise.NoiseConfig\", \"noise4\":\"com.artistech.algolink.orgs.noise.NoiseConfig\"}");
+	dm.setOrganizations("{\"noise1\":\"com.artistech.algolink.orgs.noise.NoiseConfig\"}");
+	dm.setNameValuePair("noise1", "{\"commsPerMinute\" : " + Integer.toString(factor) + "}");
+//	dm.setNameValuePair("noise2", "{\"commsPerMinute\" : " + Integer.toString(factor) + "}");
+//	dm.setNameValuePair("noise3", "{\"commsPerMinute\" : " + Integer.toString(factor) + "}");
+//	dm.setNameValuePair("noise4", "{\"commsPerMinute\" : " + Integer.toString(factor) + "}");
+//	dm.addWriter(com.artistech.algolink.writers.JsonCommsWriter.class);
+	Thread t = new Thread(dm);
+	t.start();
+	t.join();
+}

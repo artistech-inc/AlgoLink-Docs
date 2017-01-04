@@ -1,0 +1,8 @@
+import com.artistech.algolink.AlgoLinkInfo;
+import com.artistech.utils.logging.Logging;
+import com.artistech.utils.AutoResetEvent;
+
+Logging.initLogging(new AlgoLinkInfo());
+
+AutoResetEvent are = new AutoResetEvent(false);
+are.waitOne();

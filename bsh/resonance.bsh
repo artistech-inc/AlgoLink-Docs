@@ -1,0 +1,51 @@
+import com.artistech.algolink.orgs.resonance.ResonanceConfig;
+
+import com.artistech.algolink.core.DataBuilder;
+import com.artistech.algolink.core.DataBuilderConfig;
+import com.artistech.algolink.core.Organization;
+import com.artistech.algolink.core.Population;
+import com.artistech.algolink.core.PopulationConfig;
+import com.artistech.algolink.core.commfilters.BlockingFilter;
+import com.artistech.algolink.serializers.IAlgoLinkSerializer;
+import com.artistech.algolink.serializers.JsonSerializer;
+import com.artistech.algolink.writers.IAlgoLinkWriter;
+import com.artistech.algolink.writers.IWriterFactory;
+import com.artistech.algolink.writers.JsonCommsWriter;
+import com.artistech.algolink.writers.WriterFactory;
+
+//not strictly necessary, but if running multiple
+//simulations in serial in the same script, this would be necessary
+com.artistech.utils.Random.reset(true);
+
+//initialize configs:
+ResonanceConfig nc = new ResonanceConfig();
+PopulationConfig pc = new PopulationConfig();
+DataBuilderConfig dbc = new DataBuilderConfig();
+
+nc.setUseCommsIntermediaryEntity(false);
+dbc.setCommFilter(new BlockingFilter());
+dbc.setDuration(60);
+dbc.setName("resonance-a");
+
+//initialize orgs:
+Organization org = nc.createOrganization(dbc.getStartTime());
+
+//set parameter values:
+pc.setSize(org.getMaxSize());
+
+//create population:
+Population pop = pc.createPopulation(dbc.getStartTime());
+pop.addOrganization(org, dbc.getStartTime());
+
+//create databuilder:
+DataBuilder db = dbc.createDataBuilder(pop);
+
+//initialize serializers/writers:
+IWriterFactory factory = WriterFactory.defaultFactory();
+IAlgoLinkWriter w = factory.createInstance(JsonCommsWriter.class);
+w.initialize(db);
+db.initialize();
+
+//run and wait:
+db.builderThread().start();
+db.waitForTermination();

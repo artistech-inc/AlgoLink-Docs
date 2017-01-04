@@ -1,0 +1,279 @@
+import com.artistech.algolink.orgs.consensus2.Consensus2Config;
+
+import com.artistech.algolink.orgs.consensus2.Consensus2OpinionConfig;
+import com.artistech.algolink.orgs.consensus2.Consensus2OpinionSubVariableConfig;
+
+import com.artistech.algolink.AlgoLinkInfo;
+import com.artistech.algolink.core.DataBuilder;
+import com.artistech.algolink.core.DataBuilderConfig;
+import com.artistech.algolink.core.Organization;
+import com.artistech.algolink.core.Population;
+import com.artistech.algolink.core.PopulationConfig;
+import com.artistech.algolink.serializers.IAlgoLinkSerializer;
+import com.artistech.algolink.serializers.JsonSerializer;
+import com.artistech.utils.logging.Logging;
+import com.artistech.algolink.writers.IAlgoLinkWriter;
+import com.artistech.algolink.writers.IWriterFactory;
+import com.artistech.algolink.writers.JsonCommsWriter;
+import com.artistech.algolink.writers.WriterFactory;
+
+//not strictly necessary, but if running multiple
+//simulations in serial in the same script, this would be necessary
+
+import java.util.logging.Logger;
+import java.util.logging.Level;
+
+//initialize the logging
+Logging.initLogging(new AlgoLinkInfo());
+
+//create a logger
+Logger logger = Logger.getLogger("com.artistech.algolink.bsh.consensus2");
+
+if (randomSeed == void) {
+    randomSeed = 51;
+} else {
+    randomSeed = Integer.parseInt(randomSeed);
+}
+
+if (duration == void) {
+    duration = 1000000000;
+} else {
+    duration = Integer.parseInt(duration);
+}
+
+if (n == void) {
+    n = 200;
+} else {
+    n = Integer.parseInt(n);
+}
+
+if (p == void) {
+    //this number is the p value to give
+    //a size 200 group an average degree of 6:
+    p = 0.03015075376884422;
+} else {
+    p = Double.parseDouble(p);
+}
+
+if (k == void) {
+    //this number is the p value to give
+    //a size 200 group an average degree of 6:
+    k = 4;
+} else {
+    k = Double.parseDouble(k);
+}
+
+if (s == void) {
+    s = 3;
+} else {
+    s = Integer.parseInt(s);
+}
+
+if (phi == void) {
+    similarityThreshold = 3;
+} else {
+    similarityThreshold = Integer.parseInt(phi);
+}
+
+if (f == void) {
+    numberOfTopics = 5;
+} else {
+    numberOfTopics = Integer.parseInt(f);
+}
+
+if (q == void) {
+    numberOfOpinionValues = 4;
+} else {
+    numberOfOpinionValues = Integer.parseInt(q);
+}
+
+if (size2GroupsSpecial == void) {
+    size2GroupsSpecial = true;
+} else {
+    size2GroupsSpecial = Boolean.parseBoolean(size2GroupsSpecial);
+}
+
+//if (useTicksWithoutOpinionChange == void) {
+//    useTicksWithoutOpinionChange = false;
+//} else {
+//    useTicksWithoutOpinionChange = Boolean.parseBoolean(useTicksWithoutOpinionChange);
+//}
+
+//if (noChangeThreshold == void) {
+//    noChangeThreshold = 20000;
+//} else {
+//    noChangeThreshold = Integer.parseInt(noChangeThreshold);
+//}
+
+if (edgeDensityParameter == void) {
+    edgeDensityParameter = Consensus2Config.EdgeDensityParameter.K;
+} else {
+    edgeDensityParameter = Consensus2Config.EdgeDensityParameter.valueOf(edgeDensityParameter);
+}
+
+if (edgeDensityParameterSpecifiesEdgesOrGroup == void) {
+    edgeDensityParameterSpecifiesEdgesOrGroup = Consensus2Config.EdgeDensityParameterSpecifiesEdgesOrGroup.GROUP;
+} else {
+    edgeDensityParameterSpecifiesEdgesOrGroup = Consensus2Config.EdgeDensityParameterSpecifiesEdgesOrGroup.valueOf(edgeDensityParameterSpecifiesEdgesOrGroup);
+}
+
+if (numMultiProcess == void) {
+    numMultiProcess = 4;
+} else {
+    numMultiProcess = Integer.parseInt(numMultiProcess);
+}
+
+//if (durationUntilMultiProcess == void) {
+//    durationUntilMultiProcess = -1;
+//} else {
+//    durationUntilMultiProcess = Integer.parseInt(durationUntilMultiProcess);
+//}
+
+//Useful if using Multi, otherwise, the totalComms and duration should be mostly equal.
+if (useTotalCommsForDuration == void) {
+    useTotalCommsForDuration = false;
+} else {
+    useTotalCommsForDuration = Boolean.parseBoolean(useTotalCommsForDuration);
+}
+
+if (initEvenDistribution == void) {
+    initEvenDistribution = false;
+} else {
+    initEvenDistribution = Boolean.parseBoolean(initEvenDistribution);
+}
+
+if (filterVisited == void) {
+    filterVisited = false;
+} else {
+    filterVisited = Boolean.parseBoolean(filterVisited);
+}
+
+if (filterConsensus == void) {
+    filterConsensus = false;
+} else {
+    filterConsensus = Boolean.parseBoolean(filterConsensus);
+}
+if (streamToGexf == void) {
+    streamToGexf = false;
+} else {
+    streamToGexf = Boolean.parseBoolean(streamToGexf);
+}
+
+if (w == void) {
+    w = 1000;
+} else {
+    w = Integer.parseInt(w);
+}
+
+if (x == void) {
+    x = 40;
+} else {
+    x = Integer.parseInt(x);
+}
+
+if (similarity == void) {
+    similarity = 0.001;
+} else {
+    similarity = Double.parseDouble(similarity);
+}
+
+//noChangeThreshold *= n * k * s * numberOfTopics;
+
+//initialize configs:
+Consensus2Config nc = new Consensus2Config();
+nc.setStreamToGexf(streamToGexf);
+nc.setX(x);
+nc.setW(w);
+nc.setSimilarity(similarity);
+//number of turns to detect no changes being made
+//nc.setNoChangeThreshold((int) noChangeThreshold);
+//size of the organization
+nc.setN(n);
+nc.setNumMultiProcess(numMultiProcess);
+//nc.setDurationUntilMultiProcess(durationUntilMultiProcess);
+nc.setUseTotalCommsForDuration(useTotalCommsForDuration);
+nc.setInitEvenDistribution(initEvenDistribution);
+nc.setFilterVisited(filterVisited);
+nc.setFilterConsensus(filterConsensus);
+
+nc.setEdgeDensityParameter(edgeDensityParameter);
+nc.setEdgeDensityParameterSpecifiesEdgesOrGroup(edgeDensityParameterSpecifiesEdgesOrGroup);
+
+//this is the average number of groups that an entity belongs to
+nc.setK(k);
+//this is the size of a group
+nc.setS(s);
+//similarity threshold for rewire
+nc.setPhi(similarityThreshold);
+//number of topics
+nc.setF(numberOfTopics);
+//number of values for a topic
+nc.setQ(numberOfOpinionValues);
+
+//nc.setUseTicksWithoutOpinionChange(useTicksWithoutOpinionChange);
+nc.setP(p);
+
+com.artistech.utils.Random.setSeed(randomSeed);
+
+nc.setSize2GroupsSpecial(size2GroupsSpecial);
+logger.log(Level.INFO, "Random Seed:                        {0}", new Object[]{ com.artistech.utils.Random.getSeed() });
+logger.log(Level.INFO, "Duration:                           {0}", new Object[]{ duration });
+logger.log(Level.INFO, "Organization Size        (N):       {0}", new Object[]{ nc.getN() });
+logger.log(Level.INFO, "Number of Groups         (K):       {0}", new Object[]{ nc.getK() });
+logger.log(Level.INFO, "Size of Groups           (S):       {0}", new Object[]{ nc.getS() });
+logger.log(Level.INFO, "Similarity Threshold     (phi):     {0}", new Object[]{ nc.getPhi() });
+logger.log(Level.INFO, "Number of Topics         (F):       {0}", new Object[]{ nc.getF() });
+logger.log(Level.INFO, "Number of Opinion Values (Q):       {0}", new Object[]{ nc.getQ() });
+logger.log(Level.INFO, "Erdos–Renyi model P:                {0}", new Object[]{ nc.getP() });
+//logger.log(Level.INFO, "No Change Threshold:                {0}", new Object[]{ nc.getNoChangeThreshold() });
+logger.log(Level.INFO, "Size 2 Groups Special:              {0}", new Object[]{ nc.getSize2GroupsSpecial() });
+logger.log(Level.INFO, "Edge Density Parameter:             {0}", new Object[]{ nc.getEdgeDensityParameter() });
+logger.log(Level.INFO, "Edge Density Parameter Specify E/G: {0}", new Object[]{ nc.getEdgeDensityParameterSpecifiesEdgesOrGroup() });
+//logger.log(Level.INFO, "Use Ticks Without Opinion Change:   {0}", new Object[]{ nc.getUseTicksWithoutOpinionChange() });
+logger.log(Level.INFO, "Num Process Groups:                 {0}", new Object[]{ nc.getNumMultiProcess() });
+//logger.log(Level.INFO, "Duration Until Multi Process:       {0}", new Object[]{ nc.getDurationUntilMultiProcess() });
+logger.log(Level.INFO, "Use Total Comms For Duration:       {0}", new Object[]{ nc.getUseTotalCommsForDuration() });
+logger.log(Level.INFO, "Init Even Distribution:             {0}", new Object[]{ nc.getInitEvenDistribution() });
+logger.log(Level.INFO, "Filter Visited:                     {0}", new Object[]{ nc.getFilterVisited() });
+logger.log(Level.INFO, "Filter Consensus:                   {0}", new Object[]{ nc.getFilterConsensus() });
+logger.log(Level.INFO, "X:                                  {0}", new Object[]{ nc.getX() });
+logger.log(Level.INFO, "W:                                  {0}", new Object[]{ nc.getW() });
+logger.log(Level.INFO, "Similarity:                         {0}", new Object[]{ nc.getSimilarity() });
+
+com.artistech.utils.Random.reset(true);
+com.artistech.utils.Random.setSeed(randomSeed);
+
+PopulationConfig pc = new PopulationConfig();
+DataBuilderConfig dbc = new DataBuilderConfig();
+
+//set parameter values:
+dbc.setDuration(duration);
+dbc.setRealTimeFactor(0);
+dbc.setName("consensus2-bsh." + randomSeed + "-randomSeed." + nc.getN() + "-size." + nc.getF() + "-opinions." + nc.getQ() + "-values." + nc.getPhi() + "-similarity." + nc.getK() + "-num_groups." + nc.getS() + "-grp_size." + nc.getNumMultiProcess() + "-numMulti");
+dbc.setTicking(false);
+pc.setSize(nc.getN());
+
+//initialize orgs:
+Organization org = nc.createOrganization(dbc.getStartTime());
+
+//create population:
+Population pop = pc.createPopulation(dbc.getStartTime());
+pop.addOrganization(org, dbc.getStartTime());
+
+//create databuilder:
+DataBuilder db = dbc.createDataBuilder(pop);
+db.initialize();
+
+//IAlgoLinkSerializer serializer = new JsonSerializer();
+//serializer.serialize(db, pop);
+
+//run and wait:
+if (!dbc.isTicking()) {
+    db.builderThread().start();
+    db.waitForTermination();
+} else {
+    boolean success;
+    do {
+        success = db.doTick();
+    } while(success);
+}

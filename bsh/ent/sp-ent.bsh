@@ -1,0 +1,62 @@
+import com.artistech.algolink.mq.DistributedMaster;
+import com.artistech.algolink.AlgoLinkInfo;
+
+import com.artistech.algolink.ent.DataBuilderConfig;
+import com.artistech.algolink.core.PopulationConfig;
+import com.artistech.utils.logging.Logging;
+import java.util.Calendar;
+import java.util.logging.Logger;
+import java.util.logging.Level;
+
+Logging.initLogging(new AlgoLinkInfo());
+Logger logger = Logger.getLogger("com.artistech.algolink.bsh.sp-ent");
+
+int duration = 1440 * 28;
+int population_size = 150000;
+int max_sp = 18; //inclusive
+int min_sp = 1;  //inclusive
+int num_vm = 6;
+
+for(int ii = min_sp; ii <= max_sp; ii++) {
+    DataBuilderConfig dbc = new DataBuilderConfig();
+    PopulationConfig pc = new PopulationConfig();
+
+    dbc.setName("sp-" + Integer.toString(ii));
+    dbc.setDuration(duration);
+    pc.setSize(population_size);
+
+    Calendar start = Calendar.getInstance();
+    logger.log(Level.INFO, "Start Time for {1} SP: {0}", new Object[]{com.artistech.utils.TypeHandler.dateToString(start), ii});
+
+    StringBuilder sb = new StringBuilder();
+    int factor = ii;
+    if (ii > num_vm) {
+        factor = num_vm + ((ii - num_vm) * 3);
+    }
+    sb.append("{");
+    for(int jj = 0; jj < factor; jj++) {
+        sb.append("\"sp" + Integer.toString(jj) + "\" : \"com.artistech.algolink.orgs.scenario1.Scenario1Config\"");
+        if (jj < factor - 1) {
+            sb.append(",");
+        }
+    }
+    sb.append("}");
+
+    String config = sb.toString();
+    logger.log(Level.INFO, config);
+
+    DistributedMaster dm = new DistributedMaster(dbc, pc);
+    dm.setOrganizations(config);
+//    dm.addWriter(com.artistech.algolink.writers.JsonCommsWriter.class);
+
+    Thread t = new Thread(dm);
+    t.start();
+    t.join();
+
+    java.util.Calendar end = java.util.Calendar.getInstance();
+    logger.log(Level.INFO, "End Time for {1} SP: {0}", new Object[]{com.artistech.utils.TypeHandler.dateToString(end), ii});
+    long time = end.getTimeInMillis() - start.getTimeInMillis();
+    logger.log(Level.INFO, "Time Consumed: {0} ms", new Object[]{time});
+
+    System.gc();
+}

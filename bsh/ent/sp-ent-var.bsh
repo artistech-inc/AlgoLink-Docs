@@ -1,0 +1,71 @@
+import com.artistech.algolink.mq.DistributedMaster;
+import com.artistech.algolink.AlgoLinkInfo;
+
+import com.artistech.algolink.ent.DataBuilderConfig;
+import com.artistech.algolink.core.PopulationConfig;
+import com.artistech.utils.logging.Logging;
+import java.util.Calendar;
+import java.util.logging.Logger;
+import java.util.logging.Level;
+
+Logging.initLogging(new AlgoLinkInfo());
+Logger logger = Logger.getLogger("com.artistech.algolink.bsh.sp-ent");
+
+if (duration == void) {
+    duration = 1440 * 28;
+} else {
+    duration = Integer.parseInt(duration);
+}
+logger.log(Level.INFO, "duration set to {0}", new Object[]{duration});
+
+if (population_size == void) {
+    population_size = 150000;
+} else {
+    population_size = Integer.parseInt(population_size);
+}
+logger.log(Level.INFO, "population_size set to {0}", new Object[]{population_size});
+
+if (num_sp == void) {
+    num_sp = 3;
+} else {
+    num_sp = Integer.parseInt(num_sp);
+}
+logger.log(Level.INFO, "num_sp set to {0}", new Object[]{num_sp});
+
+DataBuilderConfig dbc = new DataBuilderConfig();
+PopulationConfig pc = new PopulationConfig();
+
+dbc.setName("sp-" + Integer.toString(num_sp));
+dbc.setDuration(duration);
+pc.setSize(population_size);
+
+Calendar start = Calendar.getInstance();
+logger.log(Level.INFO, "Start Time for {1} SP: {0}", new Object[]{com.artistech.utils.TypeHandler.dateToString(start), num_sp});
+
+StringBuilder sb = new StringBuilder();
+sb.append("{");
+for(int jj = 0; jj < num_sp; jj++) {
+    sb.append("\"sp" + Integer.toString(jj) + "\" : \"com.artistech.algolink.orgs.scenario1.Scenario1Config\"");
+    if (jj < (num_sp) - 1) {
+        sb.append(",");
+    }
+}
+sb.append("}");
+
+String config = sb.toString();
+logger.log(Level.INFO, config);
+
+DistributedMaster dm = new DistributedMaster(dbc, pc);
+dm.setOrganizations(config);
+//dm.addWriter(com.artistech.algolink.writers.JsonCommsWriter.class);
+
+Thread t = new Thread(dm);
+t.start();
+t.join();
+
+java.util.Calendar end = java.util.Calendar.getInstance();
+logger.log(Level.INFO, "End Time for {1} SP: {0}", new Object[]{com.artistech.utils.TypeHandler.dateToString(end), num_sp});
+long time = end.getTimeInMillis() - start.getTimeInMillis();
+logger.log(Level.INFO, "Time Consumed: {0} ms", new Object[]{time});
+
+System.gc();
