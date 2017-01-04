@@ -26,8 +26,9 @@ permalink: /bsh/
 
 ## Enterprise
 
-- [emane.bsh](ent/emane.bsh)
 - [emane-no-shim.bsh](ent/emane-no-shim.bsh)
+- [emane-noise.bsh](ent/emane-noise.bsh)
+- [emane.bsh](ent/emane.bsh)
 - [master.bsh](ent/master.bsh)
 - [master-web.bsh](ent/master-web.bsh)
 - [mq.bsh](ent/mq.bsh)

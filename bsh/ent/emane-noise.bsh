@@ -8,20 +8,19 @@
 //randomSeed = the seed for the random number generator (default = 51)
 //--------------------------------------------------------------------
 //to set these on the command line use the -v option
-//java -Xmx4g -jar AlgoLink-nscta.jar -bsh emane.bsh -v randomSeed=41 -v condition=Condition2 -v shimTimeout=1000 -v responseSize=60000
+//java -Xmx4g -jar AlgoLink-nscta.jar -bsh emane-noise.bsh -v randomSeed=41 -v shimTimeout=1000 -v responseSize=60000
 //--------------------------------------------------------------------
 
 import com.artistech.algolink.core.*;
 import com.artistech.algolink.writers.*;
 import com.artistech.algolink.nscta.shim.ShimCommFilter;
 import com.artistech.algolink.nscta.shim.ShimCommFilterConfig;
-import com.artistech.algolink.nscta.emane.*;
+import com.artistech.algolink.orgs.noise.NoiseConfig;
 
 import com.artistech.algolink.AlgoLinkInfo;
 
 import com.artistech.algolink.core.PopulationConfig;
 import com.artistech.utils.logging.Logging;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.logging.Logger;
@@ -37,19 +36,6 @@ if (randomSeed == void) {
     randomSeed = 51;
 } else {
     randomSeed = Integer.parseInt(randomSeed);
-}
-
-if (shim_config_file != void) {
-    shim_config_file = new File(shim_config_file);
-    if (!shim_config_file.exists()) {
-        shim_config_file = void;
-    }
-}
-
-if (condition == void) {
-    condition = com.artistech.algolink.nscta.emane.EmaneConditionEnum.Condition4;
-} else {
-    condition = EmaneConditionEnum.valueOf(condition);
 }
 
 if (duration == void) {
@@ -70,106 +56,58 @@ if (responseSize == void) {
     responseSize = Integer.parseInt(responseSize);
 }
 
-if (requestSize == void) {
-    requestSize = 10000;
-} else {
-    requestSize = Integer.parseInt(requestSize);
-}
-
 if (shimTimeout == void) {
     shimTimeout = 250;
 } else {
     shimTimeout = Long.parseLong(shimTimeout);
 }
 
-if (condition4Rate == void) {
-    condition4Rate = 0.889;
-} else {
-    condition4Rate = Double.parseDouble(condition4Rate);
-}
-
-if (condition3Rate == void) {
-    condition3Rate = 1;
-} else {
-    condition3Rate = Double.parseDouble(condition3Rate);
-}
-if (condition2Rate == void) {
-    condition2Rate = 1.75;
-} else {
-    condition2Rate = Double.parseDouble(condition2Rate);
-}
-if (condition1Rate == void) {
-    condition1Rate = 2.275;
-} else {
-    condition1Rate = Double.parseDouble(condition1Rate);
-}
 if (stackLoc == void) {
     stackLoc = 2;
 } else {
     stackLoc = Integer.parseInt(stackLoc);
 }
 
-//structure = {"n0n1": ["n0", "n1"], "n1n2": ["n1", "n23"], "n2n3": ["n23", "n24"]}
-//##SHIM to EMANE URLS
-//shimUrls = {"n0" : {"shimUrl" : "http://172.16.1.1:8082", "stackLoc": 1 }, "n1" : {"shimUrl" : "http://172.16.1.2:8082", "stackLoc": 1 }, "n23" : {"shimUrl" : "http://172.16.1.24:8082", "stackLoc": 1 }, "n24" : {"shimUrl" : "http://172.16.1.25:8082", "stackLoc": 1 }}
-
 logger.log(Level.INFO, "Setting Real Time Factor: {0}", new Object[]{Integer.toString(realTimeFactor)});
 logger.log(Level.INFO, "Setting Duration: {0}", new Object[]{Integer.toString(duration)});
-logger.log(Level.INFO, "Setting Condition: {0}", new Object[]{condition});
 logger.log(Level.INFO, "Setting Random Seed: {0}", new Object[]{Integer.toString(randomSeed)});
 logger.log(Level.INFO, "Setting Shim Response Size: {0}", new Object[]{Integer.toString(responseSize)});
-logger.log(Level.INFO, "Setting Shim Request Size: {0}", new Object[]{Integer.toString(requestSize)});
 logger.log(Level.INFO, "Setting Shim Timeout: {0} ms", new Object[]{Long.toString(shimTimeout)});
-logger.log(Level.INFO, "Setting Condition4 Rate: {0}", new Object[]{Double.toString(condition4Rate)});
-logger.log(Level.INFO, "Setting Condition3 Rate: {0}", new Object[]{Double.toString(condition3Rate)});
-logger.log(Level.INFO, "Setting Condition2 Rate: {0}", new Object[]{Double.toString(condition2Rate)});
-logger.log(Level.INFO, "Setting Condition1 Rate: {0}", new Object[]{Double.toString(condition1Rate)});
 logger.log(Level.INFO, "Setting StackLoc: {0}", new Object[]{Integer.toString(stackLoc)});
-if (shim_config_file != void) {
-    logger.log(Level.INFO, "Setting Shim Config File: {0}", new Object[]{shim_config_file});
-}
 //init random
 com.artistech.utils.Random.setSeed(randomSeed);
 com.artistech.utils.Random.reset(true);
 
-//create the emane config object (factory for EmaneOrganization)
-EmaneConfig ec = new EmaneConfig();
+NoiseConfig ec = new NoiseConfig();
 //create the DataBuilderConfig object (factory for the DataBuilder)
 DataBuilderConfig dbc = new DataBuilderConfig();
 //create the PopulationConfig object (factyory for the Population)
 PopulationConfig pc = new PopulationConfig();
 
-//configure the emane config object
-ec.setCondition(condition);
-ec.setCondition4Rate(condition4Rate);
-ec.setCondition3Rate(condition3Rate);
-ec.setCondition2Rate(condition2Rate);
-ec.setCondition1Rate(condition1Rate);
-ec.setRequestSize(requestSize);
-ec.setResponseSize(responseSize);
-
 //create the organization
 Organization org = ec.createOrganization(Calendar.getInstance());
-//set the size of the population based on the size of the oranization(s)
 
-//create the population
-//set the names for the entity for the shim org
+//create the shim config filter
+//this should be done before simply to get a count of how many
+//nodes are in the shim config.
 ShimCommFilterConfig filter_config = new ShimCommFilterConfig();
 filter_config.setStackLoc(stackLoc);
-if (shim_config_file != void) {
-    filter_config.initFromJson(shim_config_file);
-}
 
-pc.setSize(Math.max(filter_config.getNames().size(), org.getMaxSize() ));
-Population pop = pc.createPopulation(Calendar.getInstance());
-
-random_entities = pop.getRandom(filter_config.getNames().size());
-int count = 0;
-ArrayList ents = new ArrayList(filter_config.getNames());
-
-//filter config needs to set the shimurls
+//create the shim communication filter
 ShimCommFilter filter = new ShimCommFilter(filter_config);
 
+//create the population
+pc.setSize(Math.max(filter_config.getNames().size(), org.getMaxSize()));
+Population pop = pc.createPopulation(Calendar.getInstance());
+
+//this must be done here to instantiate the Entity objects inside of AlgoLink
+random_entities = pop.getRandom(filter_config.getNames().size());
+
+//take each entity and register with the shim comm filter
+//registering the name w/ the organization will create any
+//pairings that may be necessary (i.e. for group structure)
+int count = 0;
+ArrayList ents = new ArrayList(filter_config.getNames());
 for(Entity ent : random_entities) {
     if(count < ents.size()) {
         ent.setName(filter, ents.get(count));
@@ -182,7 +120,6 @@ for(Entity ent : random_entities) {
 //add the organization(s) to the population
 pop.addOrganization(org, Calendar.getInstance());
 
-//create the shim communication filter
 logger.log(Level.INFO, "Overriding any value set in ExternalCommFilterConfig.properties for timeout");
 com.artistech.algolink.core.commfilters.ExternalCommFilter.setTimeout(shimTimeout);
 
@@ -195,25 +132,12 @@ dbc.setCommFilter(filter);
 //set the duration/realtime factor/name
 dbc.setDuration(duration);
 dbc.setRealTimeFactor(realTimeFactor);
-dbc.setName("emane-shim-" + ec.getCondition().toString());
+dbc.setName("emane-noise");
 //this should always be false for simulations run in a script
 dbc.setTicking(false);
 
 //create the databuilder
 DataBuilder db = dbc.createDataBuilder(pop);
-
-//set the names for the entity for the shim org
-int count = 0;
-ArrayList ents = new ArrayList(filter_config.getNames());
-
-for(Entity ent : org.getMembers()) {
-    if(count < ents.size()) {
-        ent.setName(filter, ents.get(count));
-        ent.setName(org, ents.get(count));
-        count += 1;
-        logger.log(Level.INFO, ent.getName(filter));
-    }
-}
 
 //create writers for serializing communications
 IWriterFactory factory = WriterFactory.defaultFactory();
@@ -233,5 +157,4 @@ Calendar end = Calendar.getInstance();
 
 //print out output
 long consumed = end.getTimeInMillis() - start.getTimeInMillis();
-logger.log(Level.INFO, "Complete Condition: {0}", new Object[]{ec.getCondition()});
 logger.log(Level.INFO, "Time Consumed: {0} ms", new Object[]{consumed});
